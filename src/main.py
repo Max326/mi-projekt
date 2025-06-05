@@ -1,17 +1,9 @@
 import pandas as pd
 import os
+import matplotlib.pyplot as plt  # Dodaj import matplotlib
 from typing import List, Union, Optional
 
 def load_excel_data(file_path: str) -> dict:
-    """
-    Load all worksheets from the Excel file into a dictionary of DataFrames.
-    
-    Args:
-        file_path: Path to the Excel file
-        
-    Returns:
-        Dictionary with worksheet names as keys and pandas DataFrames as values
-    """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Plik {file_path} nie został znaleziony.")
     
@@ -20,17 +12,6 @@ def load_excel_data(file_path: str) -> dict:
     return excel_data
 
 def get_column_data(file_path: str, column_name: str, sheet_name: str) -> pd.Series:
-    """
-    Get data from a specific column in a specific worksheet.
-    
-    Args:
-        file_path: Path to the Excel file
-        column_name: Name of the column to extract
-        sheet_name: Name of the worksheet
-        
-    Returns:
-        Series containing the column data
-    """
     # Load all the data
     excel_data = load_excel_data(file_path)
     
@@ -56,17 +37,21 @@ def main():
     
     try:
         # Example usage
-        column_name = "całkowity przepływ pary"  # przykładowa nazwa kolumny
-        sheet_name = "d2"  # przykładowa nazwa arkusza
+        column_name = "temperatura wylotowa spalin - strona A"  # przykładowa nazwa kolumny
+        sheet_name = "d5"  # przykładowa nazwa arkusza
         
         data = get_column_data(file_path, column_name, sheet_name)
         print(f"Dane z kolumny '{column_name}' w arkuszu '{sheet_name}':")
-        print(data.head())  # Pokazuje pierwsze 5 wierszy
+        print(data.head())
         
-        # Możesz również wykorzystać te dane do dalszej analizy
-        print(f"Średnia wartość: {data.mean()}")
-        print(f"Minimalna wartość: {data.min()}")
-        print(f"Maksymalna wartość: {data.max()}")
+        # Plot the data
+        plt.figure(figsize=(10, 6))
+        plt.plot(data.index, data.values, marker='o', linestyle='-', color='b')
+        plt.title(f"Wykres danych z kolumny '{column_name}'")
+        plt.xlabel("Numer próbki")
+        plt.ylabel(column_name)
+        plt.grid(True)
+        plt.savefig("TS_B.png")
         
     except Exception as e:
         print(f"Wystąpił błąd: {e}")
