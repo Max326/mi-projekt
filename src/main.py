@@ -3,7 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import List
+from typing import List, Dict
 
 def load_excel_data(file_path: str) -> dict:
     """Wczytaj dane z pliku Excel do słownika DataFrames."""
@@ -54,51 +54,64 @@ def exploratory_data_analysis(df: pd.DataFrame, target_columns: List[str]) -> No
             plt.savefig(f'eda_{target.replace(" ", "_").replace("-", "_")}.png', dpi=300, bbox_inches='tight')
             plt.show()
 
-def correlation_analysis(df: pd.DataFrame, target_columns: List[str]) -> dict:
-    """Analiza korelacji między zmiennymi, uwzględnia wszystkie kolumny numeryczne."""
-    print("\n=== ANALIZA KORELACJI ===")
+def correlation_analysis_sorted_plots(df: pd.DataFrame, target_columns: List[str]) -> Dict[str, pd.Series]:
+    """
+    Oblicza korelacje wszystkich zmiennych numerycznych z podanymi kolumnami docelowymi.
+    Tworzy posortowane wykresy słupkowe dla każdej kolumny docelowej.
+    """
+    print("\n=== ANALIZA KORELACJI (POSORTOWANE WYKRESY SŁUPKOWE) ===")
     
-    # Wybierz tylko kolumny numeryczne
     numeric_df = df.select_dtypes(include=[np.number])
     
-    correlations = {}
+    all_correlations_data: Dict[str, pd.Series] = {}
     
-    for target in target_columns:
-        if target in numeric_df.columns:
-            # Oblicz korelacje z target variable
-            corr_with_target = numeric_df.corr()[target].abs().sort_values(ascending=False)
+    for target_col in target_columns:
+        if target_col not in numeric_df.columns:
+            print(f"Ostrzeżenie: Kolumna docelowa '{target_col}' nie została znaleziona w danych numerycznych.")
+            continue
             
-            # Zachowaj wszystkie zmienne (bez progu)
-            significant_vars = corr_with_target.drop(target)
-            
-            correlations[target] = significant_vars
-            
-            print(f"\nZmienne skorelowane z {target} (wszystkie):")
-            for var, corr in significant_vars.head(10).items():
-                print(f"  {var}: {corr:.3f}")
-            
-            # Mapa ciepła dla wszystkich zmiennych (lub max 30, żeby było czytelnie)
-            n_vars_heatmap = min(len(numeric_df.columns), 30)  # Użyj wszystkich kolumn, ale max 30
-            top_vars = list(corr_with_target.head(n_vars_heatmap).index)
-            corr_matrix = numeric_df[top_vars].corr()
-            
-            plt.figure(figsize=(16, 14))  # Zwiększ rozmiar dla czytelności
-            sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0, 
-                        square=True, fmt='.2f', annot_kws={"size": 8})  # Zmniejsz rozmiar czcionki
-            plt.title(f'Mapa korelacji dla {target}')
-            plt.xticks(rotation=45, ha='right')
-            plt.yticks(rotation=0)
-            plt.tight_layout()
-            plt.savefig(f'correlation_heatmap_{target.replace(" ", "_").replace("-", "_")}.png', 
-                        dpi=300, bbox_inches='tight')
-            plt.show()
-    
-    return correlations
+        print(f"\nObliczanie korelacji dla: {target_col}")
+        
+        # Oblicz korelacje wszystkich cech numerycznych z bieżącą kolumną docelową
+        # Używamy .corr() na całym numeric_df, a następnie wybieramy kolumnę target_col
+        # Alternatywnie, dla dużych ramek danych, numeric_df.corrwith(numeric_df[target_col]) może być bardziej wydajne
+        # ale numeric_df.corr()[target_col] jest prostsze i częściej stosowane [3]
+        correlations_series = numeric_df.corr()[target_col]
+        
+        # Usuń korelację zmiennej docelowej samej ze sobą (która zawsze wynosi 1.0)
+        correlations_series = correlations_series.drop(target_col, errors='ignore')
+        
+        # Posortuj korelacje od najwyższej do najniższej
+        sorted_correlations = correlations_series.sort_values(ascending=False)
+        
+        all_correlations_data[target_col] = sorted_correlations
+        
+        print(f"Top 5 najwyższych korelacji z {target_col}:")
+        print(sorted_correlations.head(5))
+        print(f"\nTop 5 najniższych (najbardziej ujemnych) korelacji z {target_col}:")
+        print(sorted_correlations.tail(5))
+        
+        # Tworzenie wykresu słupkowego
+        plt.figure(figsize=(12, max(8, len(sorted_correlations) * 0.3))) # Dynamiczna wysokość
+        sns.barplot(x=sorted_correlations.values, y=sorted_correlations.index, palette="coolwarm_r")
+        plt.title(f'Korelacja zmiennych z "{target_col}" (posortowane)', fontsize=15)
+        plt.xlabel('Współczynnik korelacji Pearsona', fontsize=12)
+        plt.ylabel('Zmienne', fontsize=12)
+        plt.grid(axis='x', linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        
+        # Zapisz wykres
+        filename = f'correlations_plot_{target_col.replace(" ", "_").replace("-", "_").lower()}.png'
+        plt.savefig(filename, dpi=300, bbox_inches='tight')
+        print(f"Zapisano wykres korelacji jako: {filename}")
+        plt.show()
+        
+    return all_correlations_data
 
 def main():
     """Główna funkcja analizy."""
     file_path = os.path.join('data', 'K-1_MI.xlsx')
-    sheet_name = "d3"  # Zmień na odpowiedni arkusz
+    sheet_name = "d5"  # Zmień na odpowiedni arkusz
     
     # Zmienne docelowe (temperatura spalin)
     target_columns = [
@@ -114,7 +127,7 @@ def main():
         exploratory_data_analysis(df, target_columns)
         
         # 2. Analiza korelacji
-        correlations = correlation_analysis(df, target_columns)
+        correlations = correlation_analysis_sorted_plots(df, target_columns)
         
         print("\n" + "="*60)
         print("ANALIZA ZAKOŃCZONA - sprawdź wygenerowane wykresy!")
