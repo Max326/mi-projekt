@@ -55,8 +55,8 @@ def exploratory_data_analysis(df: pd.DataFrame, target_columns: List[str], sheet
             filename = f'eda_{sheet_name_for_save}_{safe_target_name}.png'
             plt.savefig(filename, dpi=300, bbox_inches='tight')
             print(f"Zapisano wykres EDA jako: {filename}")
+            plt.show() # Odkomentuj, jeśli chcesz wyświetlać interaktywnie
             plt.close() # Zamknij figurę po zapisaniu, aby nie wyświetlać interaktywnie
-            # plt.show() # Odkomentuj, jeśli chcesz wyświetlać interaktywnie
 
 def correlation_data_for_csv(df: pd.DataFrame, target_columns: List[str]) -> Dict[str, pd.Series]:
     """
@@ -238,8 +238,8 @@ def plot_significant_correlations_for_days(
         plot_filename = os.path.join(output_plot_dir, f'significant_correlations_plot_{target_main_name.replace(" ", "_").lower()}.png')
         plt.savefig(plot_filename, dpi=300, bbox_inches='tight')
         print(f"Zapisano wykres znaczących korelacji jako: {plot_filename}")
+        plt.show() # Odkomentuj, jeśli chcesz wyświetlać interaktywnie
         plt.close() # Zamknij figurę
-        # plt.show() # Odkomentuj, jeśli chcesz wyświetlać interaktywnie
 
 # Modyfikacja funkcji main, aby wywołać nową funkcję plotującą
 def main():
