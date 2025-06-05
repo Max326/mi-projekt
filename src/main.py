@@ -3,15 +3,13 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import List, Union, Optional, Tuple
-import warnings
-warnings.filterwarnings('ignore')
+from typing import List
 
 def load_excel_data(file_path: str) -> dict:
+    """Wczytaj dane z pliku Excel do słownika DataFrames."""
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Plik {file_path} nie został znaleziony.")
     
-    # Load all sheets into a dictionary of DataFrames
     excel_data = pd.read_excel(file_path, sheet_name=None)
     return excel_data
 
@@ -56,7 +54,7 @@ def exploratory_data_analysis(df: pd.DataFrame, target_columns: List[str]) -> No
             plt.savefig(f'eda_{target.replace(" ", "_").replace("-", "_")}.png', dpi=300, bbox_inches='tight')
             plt.show()
 
-def correlation_analysis(df: pd.DataFrame, target_columns: List[str], threshold: float = 0.3) -> dict:
+def correlation_analysis(df: pd.DataFrame, target_columns: List[str]) -> dict:
     """Analiza korelacji między zmiennymi, uwzględnia wszystkie kolumny numeryczne."""
     print("\n=== ANALIZA KORELACJI ===")
     
@@ -70,8 +68,7 @@ def correlation_analysis(df: pd.DataFrame, target_columns: List[str], threshold:
             # Oblicz korelacje z target variable
             corr_with_target = numeric_df.corr()[target].abs().sort_values(ascending=False)
             
-            # Wybierz zmienne o korelacji powyżej threshold
-            # UWAGA: Teraz bierzemy wszystkie zmienne, niezależnie od progu
+            # Zachowaj wszystkie zmienne (bez progu)
             significant_vars = corr_with_target.drop(target)
             
             correlations[target] = significant_vars
@@ -81,8 +78,8 @@ def correlation_analysis(df: pd.DataFrame, target_columns: List[str], threshold:
                 print(f"  {var}: {corr:.3f}")
             
             # Mapa ciepła dla wszystkich zmiennych (lub max 30, żeby było czytelnie)
-            n_vars_heatmap = min(30, len(significant_vars))
-            top_vars = list(significant_vars.head(n_vars_heatmap).index) + [target]
+            n_vars_heatmap = min(len(numeric_df.columns), 30)  # Użyj wszystkich kolumn, ale max 30
+            top_vars = list(corr_with_target.head(n_vars_heatmap).index)
             corr_matrix = numeric_df[top_vars].corr()
             
             plt.figure(figsize=(16, 14))  # Zwiększ rozmiar dla czytelności
@@ -101,7 +98,7 @@ def correlation_analysis(df: pd.DataFrame, target_columns: List[str], threshold:
 def main():
     """Główna funkcja analizy."""
     file_path = os.path.join('data', 'K-1_MI.xlsx')
-    sheet_name = "d5"  # Zmień na odpowiedni arkusz
+    sheet_name = "d3"  # Zmień na odpowiedni arkusz
     
     # Zmienne docelowe (temperatura spalin)
     target_columns = [
@@ -117,7 +114,7 @@ def main():
         exploratory_data_analysis(df, target_columns)
         
         # 2. Analiza korelacji
-        correlations = correlation_analysis(df, target_columns, threshold=0.2)
+        correlations = correlation_analysis(df, target_columns)
         
         print("\n" + "="*60)
         print("ANALIZA ZAKOŃCZONA - sprawdź wygenerowane wykresy!")
