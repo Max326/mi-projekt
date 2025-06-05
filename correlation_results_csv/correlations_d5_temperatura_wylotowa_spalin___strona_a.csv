@@ -1,0 +1,55 @@
+Feature,CorrelationCoefficient
+kąt wychylenia palnika róg #2,0.8782
+klapy wentlatora podmuchu - strona B,0.8069
+klapy wentlatora podmuchu - strona A,0.8069
+kąt wychylenia palnika róg #1,0.8020
+temperatura wylotowa spalin - strona B,0.7123
+temperatura wlotowa powietrza - strona A,0.6611
+temperatura mieszanki za młynem F,0.6094
+przepływ węgla do młyna E,0.5681
+ciśnienie pary wtórnej,0.5478
+całkowity przepływ pary,0.5392
+przepływ węgla do młyna A,0.5078
+przepływ powietrza pierwotnego,0.4649
+przepływ wody zasilającej,0.4524
+podciśnienie w komorze spalania,0.4497
+przepływ wody wtryskowej - strona L,0.4199
+przepływ węgla do młyna C,0.4146
+przepływ węgla do młyna B,0.4060
+temperatura wlotowa powietrza - strona B,0.4053
+ciśnienie wody wtryskowej do pary świeżej,0.3572
+temperatura wylotowa pary wtórnej - strona L ,0.3532
+przepływ węgla do młyna D,0.3313
+ciśnienie pary w walczaku,0.3269
+ciśnienie wody wtryskowej do pary wtórnej,0.3254
+przepływ wody wtryskowej - strona R,0.3045
+temperatura wylotowa pary wtórnej - strona P,0.2838
+temperatura mieszanki za młynem B,0.2538
+temperatura pary świeżej wylot,0.2481
+temperatura wody wtryskowej do pary wtórnej,0.2465
+ciśnienie pary,0.2348
+temperatura wody wtryskowej do pary świeżej,0.2304
+przepływ powietrza wtórnego - strona A,0.1567
+przepływ wody wtryskowej (para świeża) - stopień I,0.1518
+przepływ powietrza wtórnego - strona B,0.1293
+temperatura pary świeżej za wtryskiem II,0.1234
+temperatura pary świeżej przed wtryskiem II,0.0861
+temperatura mieszanki za młynem D,0.0242
+temperatura za wtryskiem pary wtórnej - strona L ,0.0225
+przepływ wody wtryskowej (para świeża) - stopień II,-0.0204
+poziom wody w walczaku,-0.0337
+róznica cisnień skrzynka palnikowa - komora spalania,-0.1052
+zawór zdmuchiwaczy sadzy - strona P,-0.3617
+temperatura za wtryskiem pary wtórnej - strona P,-0.3623
+temperatura pary świeżej przed wtryskiem I,-0.3677
+temperatura pary świeżej za wtryskiem I,-0.3691
+temperatura mieszanki za młynem C,-0.4872
+tlen w spalinach - strona B,-0.5521
+tlen w spalinach - strona A,-0.5568
+temperatura mieszanki za młynem E,-0.5714
+kąt wychylenia palnika róg #3,
+kąt wychylenia palnika róg #4,
+przepływ węgla do młyna F,
+klapy wentlatora ciągu spalin - strona A,
+klapy wentlatora ciagu spalin - strona B,
+zawór zdmuchiwaczy sadzy - strona L,

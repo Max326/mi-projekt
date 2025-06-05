@@ -1,0 +1,56 @@
+Feature,CorrelationCoefficient
+zawór zdmuchiwaczy sadzy - strona L,0.4429
+podciśnienie w komorze spalania,0.3320
+przepływ wody wtryskowej - strona L,0.3253
+klapy wentlatora podmuchu - strona A,0.3043
+zawór zdmuchiwaczy sadzy - strona P,0.2310
+przepływ wody zasilającej,0.1903
+przepływ węgla do młyna D,0.1636
+przepływ węgla do młyna C,0.1422
+temperatura mieszanki za młynem B,0.1266
+przepływ powietrza wtórnego - strona A,0.1079
+temperatura mieszanki za młynem F,0.0906
+poziom wody w walczaku,0.0830
+przepływ węgla do młyna B,0.0360
+przepływ węgla do młyna E,0.0316
+przepływ powietrza wtórnego - strona B,0.0159
+temperatura pary świeżej za wtryskiem II,-0.0295
+temperatura za wtryskiem pary wtórnej - strona L ,-0.0426
+temperatura wylotowa pary wtórnej - strona P,-0.0440
+temperatura pary świeżej za wtryskiem I,-0.0532
+temperatura pary świeżej przed wtryskiem I,-0.0589
+tlen w spalinach - strona B,-0.0595
+temperatura wylotowa pary wtórnej - strona L ,-0.0601
+przepływ wody wtryskowej - strona R,-0.0712
+temperatura mieszanki za młynem D,-0.0758
+temperatura mieszanki za młynem E,-0.0873
+tlen w spalinach - strona A,-0.0898
+róznica cisnień skrzynka palnikowa - komora spalania,-0.1335
+temperatura pary świeżej przed wtryskiem II,-0.1636
+temperatura wlotowa powietrza - strona A,-0.1636
+ciśnienie wody wtryskowej do pary świeżej,-0.1791
+całkowity przepływ pary,-0.2125
+ciśnienie wody wtryskowej do pary wtórnej,-0.2305
+temperatura mieszanki za młynem C,-0.2340
+ciśnienie pary w walczaku,-0.2371
+ciśnienie pary wtórnej,-0.2516
+przepływ wody wtryskowej (para świeża) - stopień II,-0.2534
+ciśnienie pary,-0.2592
+temperatura pary świeżej wylot,-0.2721
+przepływ powietrza pierwotnego,-0.3411
+przepływ wody wtryskowej (para świeża) - stopień I,-0.3829
+temperatura wlotowa powietrza - strona B,-0.3905
+temperatura za wtryskiem pary wtórnej - strona P,-0.4241
+temperatura wody wtryskowej do pary świeżej,-0.6098
+kąt wychylenia palnika róg #1,
+kąt wychylenia palnika róg #2,
+kąt wychylenia palnika róg #3,
+kąt wychylenia palnika róg #4,
+temperatura mieszanki za młynem A,
+przepływ węgla do młyna A,
+przepływ węgla do młyna F,
+klapy wentlatora podmuchu - strona B,
+klapy wentlatora ciągu spalin - strona A,
+klapy wentlatora ciagu spalin - strona B,
+temperatura wylotowa spalin - strona B,
+temperatura wody wtryskowej do pary wtórnej,

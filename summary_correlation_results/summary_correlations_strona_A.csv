@@ -1,0 +1,219 @@
+Feature,CorrelationCoefficient,Day
+całkowity przepływ pary,-0.2125,d2
+całkowity przepływ pary,0.5067,d3
+całkowity przepływ pary,0.5392,d5
+całkowity przepływ pary,,d6
+ciśnienie pary,-0.2592,d2
+ciśnienie pary,0.3916,d3
+ciśnienie pary,0.2348,d5
+ciśnienie pary,,d6
+ciśnienie pary w walczaku,-0.2371,d2
+ciśnienie pary w walczaku,0.4469,d3
+ciśnienie pary w walczaku,0.3269,d5
+ciśnienie pary w walczaku,,d6
+ciśnienie pary wtórnej,-0.2516,d2
+ciśnienie pary wtórnej,-0.5427,d3
+ciśnienie pary wtórnej,0.5478,d5
+ciśnienie pary wtórnej,,d6
+ciśnienie wody wtryskowej do pary wtórnej,-0.2305,d2
+ciśnienie wody wtryskowej do pary wtórnej,0.6787,d3
+ciśnienie wody wtryskowej do pary wtórnej,0.3254,d5
+ciśnienie wody wtryskowej do pary wtórnej,,d6
+ciśnienie wody wtryskowej do pary świeżej,-0.1791,d2
+ciśnienie wody wtryskowej do pary świeżej,0.4855,d3
+ciśnienie wody wtryskowej do pary świeżej,0.3572,d5
+ciśnienie wody wtryskowej do pary świeżej,,d6
+klapy wentlatora ciagu spalin - strona B,,d2
+klapy wentlatora ciagu spalin - strona B,,d3
+klapy wentlatora ciagu spalin - strona B,,d5
+klapy wentlatora ciagu spalin - strona B,,d6
+klapy wentlatora ciągu spalin - strona A,,d2
+klapy wentlatora ciągu spalin - strona A,,d3
+klapy wentlatora ciągu spalin - strona A,,d5
+klapy wentlatora ciągu spalin - strona A,,d6
+klapy wentlatora podmuchu - strona A,0.3043,d2
+klapy wentlatora podmuchu - strona A,,d3
+klapy wentlatora podmuchu - strona A,0.8069,d5
+klapy wentlatora podmuchu - strona A,,d6
+klapy wentlatora podmuchu - strona B,,d2
+klapy wentlatora podmuchu - strona B,,d3
+klapy wentlatora podmuchu - strona B,0.8069,d5
+klapy wentlatora podmuchu - strona B,,d6
+kąt wychylenia palnika róg #1,,d2
+kąt wychylenia palnika róg #1,-0.5238,d3
+kąt wychylenia palnika róg #1,0.8020,d5
+kąt wychylenia palnika róg #1,,d6
+kąt wychylenia palnika róg #2,,d2
+kąt wychylenia palnika róg #2,-0.5448,d3
+kąt wychylenia palnika róg #2,0.8782,d5
+kąt wychylenia palnika róg #2,,d6
+kąt wychylenia palnika róg #3,,d2
+kąt wychylenia palnika róg #3,,d3
+kąt wychylenia palnika róg #3,,d5
+kąt wychylenia palnika róg #3,,d6
+kąt wychylenia palnika róg #4,,d2
+kąt wychylenia palnika róg #4,-0.5232,d3
+kąt wychylenia palnika róg #4,,d5
+kąt wychylenia palnika róg #4,,d6
+podciśnienie w komorze spalania,0.3320,d2
+podciśnienie w komorze spalania,0.1253,d3
+podciśnienie w komorze spalania,0.4497,d5
+podciśnienie w komorze spalania,,d6
+poziom wody w walczaku,0.0830,d2
+poziom wody w walczaku,-0.0431,d3
+poziom wody w walczaku,-0.0337,d5
+poziom wody w walczaku,,d6
+przepływ powietrza pierwotnego,-0.3411,d2
+przepływ powietrza pierwotnego,-0.0781,d3
+przepływ powietrza pierwotnego,0.4649,d5
+przepływ powietrza pierwotnego,,d6
+przepływ powietrza wtórnego - strona A,0.1079,d2
+przepływ powietrza wtórnego - strona A,-0.1763,d3
+przepływ powietrza wtórnego - strona A,0.1567,d5
+przepływ powietrza wtórnego - strona A,,d6
+przepływ powietrza wtórnego - strona B,0.0159,d2
+przepływ powietrza wtórnego - strona B,-0.1380,d3
+przepływ powietrza wtórnego - strona B,0.1293,d5
+przepływ powietrza wtórnego - strona B,,d6
+przepływ wody wtryskowej (para świeża) - stopień I,-0.3829,d2
+przepływ wody wtryskowej (para świeża) - stopień I,0.0377,d3
+przepływ wody wtryskowej (para świeża) - stopień I,0.1518,d5
+przepływ wody wtryskowej (para świeża) - stopień I,,d6
+przepływ wody wtryskowej (para świeża) - stopień II,-0.2534,d2
+przepływ wody wtryskowej (para świeża) - stopień II,0.1813,d3
+przepływ wody wtryskowej (para świeża) - stopień II,-0.0204,d5
+przepływ wody wtryskowej (para świeża) - stopień II,,d6
+przepływ wody wtryskowej - strona L,0.3253,d2
+przepływ wody wtryskowej - strona L,-0.6597,d3
+przepływ wody wtryskowej - strona L,0.4199,d5
+przepływ wody wtryskowej - strona L,,d6
+przepływ wody wtryskowej - strona R,-0.0712,d2
+przepływ wody wtryskowej - strona R,-0.7477,d3
+przepływ wody wtryskowej - strona R,0.3045,d5
+przepływ wody wtryskowej - strona R,,d6
+przepływ wody zasilającej,0.1903,d2
+przepływ wody zasilającej,0.5482,d3
+przepływ wody zasilającej,0.4524,d5
+przepływ wody zasilającej,,d6
+przepływ węgla do młyna A,,d2
+przepływ węgla do młyna A,,d3
+przepływ węgla do młyna A,0.5078,d5
+przepływ węgla do młyna A,,d6
+przepływ węgla do młyna B,0.0360,d2
+przepływ węgla do młyna B,-0.8376,d3
+przepływ węgla do młyna B,0.4060,d5
+przepływ węgla do młyna B,,d6
+przepływ węgla do młyna C,0.1422,d2
+przepływ węgla do młyna C,-0.2550,d3
+przepływ węgla do młyna C,0.4146,d5
+przepływ węgla do młyna C,,d6
+przepływ węgla do młyna D,0.1636,d2
+przepływ węgla do młyna D,-0.3917,d3
+przepływ węgla do młyna D,0.3313,d5
+przepływ węgla do młyna D,,d6
+przepływ węgla do młyna E,0.0316,d2
+przepływ węgla do młyna E,-0.2469,d3
+przepływ węgla do młyna E,0.5681,d5
+przepływ węgla do młyna E,,d6
+przepływ węgla do młyna F,,d2
+przepływ węgla do młyna F,,d5
+przepływ węgla do młyna F,,d6
+róznica cisnień skrzynka palnikowa - komora spalania,-0.1335,d2
+róznica cisnień skrzynka palnikowa - komora spalania,0.0196,d3
+róznica cisnień skrzynka palnikowa - komora spalania,-0.1052,d5
+róznica cisnień skrzynka palnikowa - komora spalania,,d6
+temperatura mieszanki za młynem A,,d2
+temperatura mieszanki za młynem A,0.6812,d3
+temperatura mieszanki za młynem A,,d6
+temperatura mieszanki za młynem B,0.1266,d2
+temperatura mieszanki za młynem B,0.1877,d3
+temperatura mieszanki za młynem B,0.2538,d5
+temperatura mieszanki za młynem B,,d6
+temperatura mieszanki za młynem C,-0.2340,d2
+temperatura mieszanki za młynem C,0.1380,d3
+temperatura mieszanki za młynem C,-0.4872,d5
+temperatura mieszanki za młynem C,,d6
+temperatura mieszanki za młynem D,-0.0758,d2
+temperatura mieszanki za młynem D,0.1934,d3
+temperatura mieszanki za młynem D,0.0242,d5
+temperatura mieszanki za młynem D,,d6
+temperatura mieszanki za młynem E,-0.0873,d2
+temperatura mieszanki za młynem E,-0.2140,d3
+temperatura mieszanki za młynem E,-0.5714,d5
+temperatura mieszanki za młynem E,,d6
+temperatura mieszanki za młynem F,0.0906,d2
+temperatura mieszanki za młynem F,,d3
+temperatura mieszanki za młynem F,0.6094,d5
+temperatura mieszanki za młynem F,,d6
+temperatura pary świeżej przed wtryskiem I,-0.0589,d2
+temperatura pary świeżej przed wtryskiem I,0.1109,d3
+temperatura pary świeżej przed wtryskiem I,-0.3677,d5
+temperatura pary świeżej przed wtryskiem I,,d6
+temperatura pary świeżej przed wtryskiem II,-0.1636,d2
+temperatura pary świeżej przed wtryskiem II,-0.4777,d3
+temperatura pary świeżej przed wtryskiem II,0.0861,d5
+temperatura pary świeżej przed wtryskiem II,,d6
+temperatura pary świeżej wylot,-0.2721,d2
+temperatura pary świeżej wylot,-0.4464,d3
+temperatura pary świeżej wylot,0.2481,d5
+temperatura pary świeżej wylot,,d6
+temperatura pary świeżej za wtryskiem I,-0.0532,d2
+temperatura pary świeżej za wtryskiem I,0.1074,d3
+temperatura pary świeżej za wtryskiem I,-0.3691,d5
+temperatura pary świeżej za wtryskiem I,,d6
+temperatura pary świeżej za wtryskiem II,-0.0295,d2
+temperatura pary świeżej za wtryskiem II,-0.5979,d3
+temperatura pary świeżej za wtryskiem II,0.1234,d5
+temperatura pary świeżej za wtryskiem II,,d6
+temperatura wlotowa powietrza - strona A,-0.1636,d2
+temperatura wlotowa powietrza - strona A,0.6316,d3
+temperatura wlotowa powietrza - strona A,0.6611,d5
+temperatura wlotowa powietrza - strona A,,d6
+temperatura wlotowa powietrza - strona B,-0.3905,d2
+temperatura wlotowa powietrza - strona B,0.6065,d3
+temperatura wlotowa powietrza - strona B,0.4053,d5
+temperatura wlotowa powietrza - strona B,,d6
+temperatura wody wtryskowej do pary wtórnej,,d2
+temperatura wody wtryskowej do pary wtórnej,-0.5704,d3
+temperatura wody wtryskowej do pary wtórnej,0.2465,d5
+temperatura wody wtryskowej do pary wtórnej,,d6
+temperatura wody wtryskowej do pary świeżej,-0.6098,d2
+temperatura wody wtryskowej do pary świeżej,-0.0131,d3
+temperatura wody wtryskowej do pary świeżej,0.2304,d5
+temperatura wody wtryskowej do pary świeżej,,d6
+temperatura wylotowa pary wtórnej - strona L ,-0.0601,d2
+temperatura wylotowa pary wtórnej - strona L ,-0.2772,d3
+temperatura wylotowa pary wtórnej - strona L ,0.3532,d5
+temperatura wylotowa pary wtórnej - strona L ,,d6
+temperatura wylotowa pary wtórnej - strona P,-0.0440,d2
+temperatura wylotowa pary wtórnej - strona P,-0.2108,d3
+temperatura wylotowa pary wtórnej - strona P,0.2838,d5
+temperatura wylotowa pary wtórnej - strona P,,d6
+temperatura wylotowa spalin - strona B,,d2
+temperatura wylotowa spalin - strona B,0.8872,d3
+temperatura wylotowa spalin - strona B,0.7123,d5
+temperatura wylotowa spalin - strona B,,d6
+temperatura za wtryskiem pary wtórnej - strona L ,-0.0426,d2
+temperatura za wtryskiem pary wtórnej - strona L ,0.8070,d3
+temperatura za wtryskiem pary wtórnej - strona L ,0.0225,d5
+temperatura za wtryskiem pary wtórnej - strona L ,,d6
+temperatura za wtryskiem pary wtórnej - strona P,-0.4241,d2
+temperatura za wtryskiem pary wtórnej - strona P,0.7351,d3
+temperatura za wtryskiem pary wtórnej - strona P,-0.3623,d5
+temperatura za wtryskiem pary wtórnej - strona P,,d6
+tlen w spalinach - strona A,-0.0898,d2
+tlen w spalinach - strona A,-0.0726,d3
+tlen w spalinach - strona A,-0.5568,d5
+tlen w spalinach - strona A,,d6
+tlen w spalinach - strona B,-0.0595,d2
+tlen w spalinach - strona B,0.1906,d3
+tlen w spalinach - strona B,-0.5521,d5
+tlen w spalinach - strona B,,d6
+zawór zdmuchiwaczy sadzy - strona L,0.4429,d2
+zawór zdmuchiwaczy sadzy - strona L,0.5781,d3
+zawór zdmuchiwaczy sadzy - strona L,,d5
+zawór zdmuchiwaczy sadzy - strona L,,d6
+zawór zdmuchiwaczy sadzy - strona P,0.2310,d2
+zawór zdmuchiwaczy sadzy - strona P,0.6027,d3
+zawór zdmuchiwaczy sadzy - strona P,-0.3617,d5
+zawór zdmuchiwaczy sadzy - strona P,,d6
