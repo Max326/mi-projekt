@@ -111,7 +111,7 @@ def correlation_analysis_sorted_plots(df: pd.DataFrame, target_columns: List[str
 def main():
     """Główna funkcja analizy."""
     file_path = os.path.join('data', 'K-1_MI.xlsx')
-    sheet_name = "d5"  # Zmień na odpowiedni arkusz
+    sheet_name = "d2"  # Zmień na odpowiedni arkusz
     
     # Zmienne docelowe (temperatura spalin)
     target_columns = [
