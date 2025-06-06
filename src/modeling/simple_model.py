@@ -3,9 +3,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
-import matplotlib.pyplot as plt # Dodaj import
+# import matplotlib.pyplot as plt # Już niepotrzebne bezpośrednio tutaj
+from utils.plotting_utils import plot_predictions_vs_actual_scatter, plot_predictions_over_samples # Importuj nowe funkcje
 
-def train_evaluate_linear_model(df: pd.DataFrame, feature_cols: list, target_col: str, plot_results: bool = True): # Dodaj argument plot_results
+def train_evaluate_linear_model(df: pd.DataFrame, feature_cols: list, target_col: str, plots_dir: str, plot_results: bool = True):
     """
     Trenuje i ocenia model regresji liniowej.
 
@@ -13,10 +14,11 @@ def train_evaluate_linear_model(df: pd.DataFrame, feature_cols: list, target_col
         df (pd.DataFrame): Ramka danych zawierająca dane.
         feature_cols (list): Lista nazw kolumn cech.
         target_col (str): Nazwa kolumny docelowej.
-        plot_results (bool): Czy generować wykres porównawczy.
+        plots_dir (str): Katalog do zapisywania wykresów.
+        plot_results (bool): Czy generować wykresy.
 
     Returns:
-        tuple: ( wytrenowany model, słownik z metrykami ) lub (None, {}) jeśli błąd.
+        tuple: (wytrenowany model, słownik z metrykami) lub (None, {}) jeśli błąd.
     """
     all_required_cols = feature_cols + [target_col]
     missing_cols = [col for col in all_required_cols if col not in df.columns]
@@ -74,7 +76,7 @@ def train_evaluate_linear_model(df: pd.DataFrame, feature_cols: list, target_col
     mse = mean_squared_error(y_test, predictions)
     r2 = r2_score(y_test, predictions)
 
-    print(f"\nModel dla celu: {target_col}")
+    print(f"\nModel Liniowy dla celu: {target_col}")
     print(f"Wybrane cechy: {feature_cols}")
     print(f"Mean Squared Error (MSE): {mse:.4f}")
     print(f"R-squared (R2): {r2:.4f}")
@@ -85,20 +87,9 @@ def train_evaluate_linear_model(df: pd.DataFrame, feature_cols: list, target_col
     print(comparison_df.head())
 
     if plot_results:
-        plt.figure(figsize=(10, 6))
-        plt.scatter(y_test, predictions, alpha=0.7, edgecolors='k')
-        plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2) # Linia idealnej predykcji
-        plt.xlabel('Wartości rzeczywiste')
-        plt.ylabel('Wartości predykowane')
-        plt.title(f'Porównanie wartości rzeczywistych i predykowanych dla: {target_col}')
-        plt.grid(True)
+        model_name = "Linear_Regression"
+        plot_predictions_vs_actual_scatter(y_test, predictions, target_col, model_name, plots_dir)
+        plot_predictions_over_samples(y_test, predictions, target_col, model_name, plots_dir)
         
-        # Zapisz wykres do pliku zamiast wyświetlać, jeśli pracujesz w środowisku bez GUI
-        # lub chcesz zachować wykresy.
-        plot_filename = f"prediction_vs_actual_{target_col.replace(' ', '_').replace('-', '_')}.png"
-        plt.savefig(plot_filename)
-        print(f"Wykres zapisano jako: {plot_filename}")
-        # plt.show() # Odkomentuj, jeśli chcesz wyświetlić interaktywnie
-
     metrics = {'mse': mse, 'r2': r2}
     return model, metrics
