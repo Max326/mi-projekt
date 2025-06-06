@@ -281,7 +281,7 @@ def main():
         "tlen w spalinach - strona A", "tlen w spalinach - strona B"
     ]
     # Definicja opóźnień w SEKUNDACH, które chcemy analizować
-    time_lags_to_check_seconds = [10, 20, 30, 60, 120, 180, 300, 600] # np. do 10 minut
+    time_lags_to_check_seconds = [10, 20, 30, 60, 120, 180, 300, 600, 1200] # np. do 10 minut
 
     # Definicja początkowych częstotliwości próbkowania (w sekundach)
     initial_sampling_rates_seconds = { 'd2': 10, 'd3': 10, 'd5': 10, 'd6': 2 }
