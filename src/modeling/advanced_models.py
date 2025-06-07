@@ -6,8 +6,6 @@ import numpy as np
 from utils.plotting_utils import plot_predictions_vs_actual_scatter, plot_predictions_over_samples
 from utils.data_preprocessing import prepare_and_split_data_stratified # NOWY IMPORT
 
-# Usunięto funkcję preprocess_data_for_modeling, ponieważ jej logika jest teraz w prepare_and_split_data_stratified
-
 def train_evaluate_random_forest_model(df: pd.DataFrame, feature_cols: list, target_col: str, plots_dir: str, plot_results: bool = True):
     """Trenuje i ocenia model Random Forest Regressor używając stratyfikowanego podziału danych."""
     X_train, X_test, y_train, y_test = prepare_and_split_data_stratified(

@@ -1,17 +1,19 @@
 import os
 import pandas as pd
 from data_load.data_loader import load_excel_data 
-from modeling.simple_model import train_evaluate_linear_model 
+from modeling.simple_model import train_evaluate_linear_model, train_evaluate_polynomial_model # Dodano train_evaluate_polynomial_model
 from modeling.advanced_models import train_evaluate_random_forest_model, train_evaluate_gradient_boosting_model 
-from utils.plotting_utils import ensure_dir, plot_outlier_visualization # Dodano plot_outlier_visualization
+from utils.plotting_utils import ensure_dir, plot_outlier_visualization
 from utils.data_preprocessing import downsample_dataframe, remove_outliers_iqr 
 from id.eda import exploratory_data_analysis, plot_downsampled_data_comparison 
 
 def main():
-    # --- Konfiguracja ---
-    MODEL_TYPE = "random_forest" 
-    PLOT_RESULTS = True # Ogólny przełącznik dla wykresów wyników modeli
-    PLOTS_DIR = "plots_output" # Katalog dla wykresów wyników modeli
+    # --- Config ---
+    MODEL_TYPE = "polynomial"  # "linear", "polynomial", "random_forest", "gradient_boosting"
+    POLYNOMIAL_DEGREE = 5
+    
+    PLOT_RESULTS = True 
+    PLOTS_DIR = "plots_output" 
     
     DOWNSAMPLE_SHEET_NAME = 'd6' 
     DOWNSAMPLE_WINDOW = 5       
@@ -19,11 +21,11 @@ def main():
     EDA_OUTPUT_DIR = "eda_plots" 
     DOWNSAMPLED_COMPARISON_DIR = "downsampled_comparison_plots" 
 
-    PLOT_INPUT_DATA_VISUALIZATION = True  
+    PLOT_INPUT_DATA_VISUALIZATION = False # use it to veirfy new inputs!
     INPUT_VISUALIZATION_DIR = "input_data_visualizations" 
     HIGHLIGHT_OUTLIERS_ON_INPUT_PLOTS = True 
 
-    APPLY_OUTLIER_REMOVAL = True
+    APPLY_OUTLIER_REMOVAL = False # used with current inputs may only cause harm xd
     COLUMNS_FOR_VISUALIZATION_AND_OUTLIERS = [
         "całkowity przepływ pary", 
         "ciśnienie wody wtryskowej do pary wtórnej",
@@ -47,14 +49,17 @@ def main():
 
     if PLOT_RESULTS:
         ensure_dir(PLOTS_DIR)
-    ensure_dir(EDA_OUTPUT_DIR) # EDA plots są zwykle przydatne
-    if DOWNSAMPLE_SHEET_NAME in sheet_names_to_process and PLOT_RESULTS: # Tylko jeśli d6 jest przetwarzany i chcemy ploty
+    ensure_dir(EDA_OUTPUT_DIR) 
+    if DOWNSAMPLE_SHEET_NAME in sheet_names_to_process and PLOT_RESULTS: 
         ensure_dir(DOWNSAMPLED_COMPARISON_DIR)
-    if PLOT_INPUT_DATA_VISUALIZATION: # Katalog dla wizualizacji wejściowych/outlierów
+    if PLOT_INPUT_DATA_VISUALIZATION: 
         ensure_dir(INPUT_VISUALIZATION_DIR)
 
     print("Faza identyfikacji pominięta w tej konfiguracji.")
-    print(f"\n--- Rozpoczęcie modelowania z użyciem: {MODEL_TYPE} ---")
+    if MODEL_TYPE == "polynomial":
+        print(f"\n--- Rozpoczęcie modelowania z użyciem: {MODEL_TYPE} (stopień: {POLYNOMIAL_DEGREE}) ---")
+    else:
+        print(f"\n--- Rozpoczęcie modelowania z użyciem: {MODEL_TYPE} ---")
     
     try:
         all_sheets_data = load_excel_data(file_path)
@@ -105,7 +110,6 @@ def main():
     combined_df = pd.concat(data_frames_to_concat, ignore_index=True)
     print(f"Rozmiar połączonego DataFrame przed przetwarzaniem outlierów: {combined_df.shape}")
 
-    # Wizualizacja danych wejściowych / outlierów (przed faktycznym usunięciem)
     if PLOT_INPUT_DATA_VISUALIZATION and not combined_df.empty:
         print("\n--- Generowanie wizualizacji danych wejściowych/outlierów ---")
         for col_name in COLUMNS_FOR_VISUALIZATION_AND_OUTLIERS:
@@ -117,14 +121,13 @@ def main():
                 lower_b_param = None
                 upper_b_param = None
 
-                # Jeśli chcemy usuwać outliery I chcemy je podświetlić na wykresach wejściowych
                 if APPLY_OUTLIER_REMOVAL and HIGHLIGHT_OUTLIERS_ON_INPUT_PLOTS:
                     original_col_data_no_nan = series_data.dropna()
                     if not original_col_data_no_nan.empty:
                         Q1 = original_col_data_no_nan.quantile(0.25)
                         Q3 = original_col_data_no_nan.quantile(0.75)
                         IQR_val = Q3 - Q1
-                        if IQR_val > 0: # Tylko jeśli IQR jest sensowne
+                        if IQR_val > 0: 
                             lower_b_param = Q1 - IQR_MULTIPLIER_FOR_OUTLIERS * IQR_val
                             upper_b_param = Q3 + IQR_MULTIPLIER_FOR_OUTLIERS * IQR_val
                             
@@ -149,7 +152,6 @@ def main():
             else:
                 print(f"Kolumna '{col_name}' nie istnieje w DataFrame lub nie jest numeryczna - pomijanie wizualizacji.")
 
-    # Faktyczne usuwanie outlierów, jeśli włączone
     if APPLY_OUTLIER_REMOVAL and not combined_df.empty:
         print("\n--- Usuwanie outlierów z połączonego DataFrame ---")
         actual_cols_for_removal = [col for col in COLUMNS_FOR_VISUALIZATION_AND_OUTLIERS if col in combined_df.columns]
@@ -219,6 +221,15 @@ def main():
         if MODEL_TYPE == "linear":
             model, metrics = train_evaluate_linear_model(
                 df_for_modeling, feature_cols, target_col, PLOTS_DIR, PLOT_RESULTS
+            )
+        elif MODEL_TYPE == "polynomial": # NOWA GAŁĄŹ
+            model, metrics = train_evaluate_polynomial_model(
+                df_for_modeling, 
+                feature_cols, 
+                target_col, 
+                PLOTS_DIR, 
+                PLOT_RESULTS,
+                degree=POLYNOMIAL_DEGREE
             )
         elif MODEL_TYPE == "random_forest":
             model, metrics = train_evaluate_random_forest_model(
