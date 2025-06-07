@@ -7,22 +7,25 @@ from modeling.simple_model import train_evaluate_linear_model
 from modeling.advanced_models import train_evaluate_random_forest_model, train_evaluate_gradient_boosting_model 
 from utils.plotting_utils import ensure_dir
 from utils.data_preprocessing import downsample_dataframe 
+from id.eda import exploratory_data_analysis, plot_downsampled_data_comparison # Import funkcji porównania downsamplingu
 
 def main():
     # --- Konfiguracja ---
-    MODEL_TYPE = "random_forest"  # Choose your fighter: "linear", "random_forest", "gradient_boosting"
+    MODEL_TYPE = "random_forest"  # Możliwe wartości: "linear", "random_forest", "gradient_boosting"
     PLOT_RESULTS = True
     PLOTS_DIR = "plots_output" # Katalog na wykresy
-    DOWNSAMPLE_SHEET_NAME = 'd6' # Arkusz do downsamplingu
+    DOWNSAMPLE_SHEET_NAME = 'd6' # Arkusz do downsamplingu (pozostawiony dla przyszłego użycia)
     DOWNSAMPLE_WINDOW = 5       # Okno dla downsamplingu (z 2s na 10s to okno 5)
+    EDA_OUTPUT_DIR = "eda_plots" # Katalog na wykresy EDA
+    DOWNSAMPLED_COMPARISON_DIR = "downsampled_comparison_plots" # Katalog na porównanie downsamplingu
     # --- Dane wejściowe ---
     file_path = os.path.join('data', 'K-1_MI.xlsx')
-    sheet_names_to_process = ['d2', 'd3', 'd5', 'd6']
+    sheet_names_to_process = ['d2', 'd3', 'd5']  # Wykluczono d6
     target_columns = [
         "temperatura wylotowa spalin - strona A",
         "temperatura wylotowa spalin - strona B"
     ]
-    # daily_csv_dir = "correlation_results_csv" # Odkomentuj jeśli używasz
+    daily_csv_dir = "correlation_results_csv" # Odkomentuj jeśli używasz
     if PLOT_RESULTS:
         ensure_dir(PLOTS_DIR)
 
@@ -47,13 +50,28 @@ def main():
         if sheet_name in all_sheets_data:
             sheet_df = all_sheets_data[sheet_name].copy() 
 
+            # Wyklucz dane dotyczące strony B dla arkusza d2
+            if sheet_name == 'd2':
+                columns_to_exclude = [col for col in sheet_df.columns if 'strona B' in col]
+                sheet_df.drop(columns=columns_to_exclude, inplace=True)
+                print(f"Wykluczono kolumny dotyczące strony B dla arkusza {sheet_name}: {columns_to_exclude}")
+
+            # EDA dla danych oryginalnych
+            exploratory_data_analysis(sheet_df, target_columns, sheet_name, output_dir=EDA_OUTPUT_DIR)
+
+            # Downsampling (pozostawiony dla przyszłego użycia, ale nie wykonywany dla d6)
             if sheet_name == DOWNSAMPLE_SHEET_NAME:
                 print(f"Downsampling arkusza: {sheet_name} z oknem {DOWNSAMPLE_WINDOW} używając średniej.")
-                sheet_df = downsample_dataframe(sheet_df, window_size=DOWNSAMPLE_WINDOW, aggregation_func='mean')
+                downsampled_df = downsample_dataframe(sheet_df, window_size=DOWNSAMPLE_WINDOW, aggregation_func='mean')
                 
-                if sheet_df.empty:
+                if downsampled_df.empty:
                     print(f"Ostrzeżenie: Arkusz {sheet_name} jest pusty po downsamplingu. Pomijanie.")
                     continue
+                
+                # Porównanie danych oryginalnych i po downsamplingu
+                plot_downsampled_data_comparison(sheet_df, downsampled_df, target_columns, sheet_name, output_dir=DOWNSAMPLED_COMPARISON_DIR)
+                
+                sheet_df = downsampled_df
             
             data_frames_to_concat.append(sheet_df)
         else:
@@ -66,12 +84,7 @@ def main():
     combined_df = pd.concat(data_frames_to_concat, ignore_index=True)
     
     # Usuwanie kolumny 'Date/Time' PRZED przekazaniem do modeli, jeśli nie jest cechą
-    # Modele oczekują danych numerycznych (poza specjalnymi przypadkami)
-    # Jeśli 'Date/Time' zostało zachowane i jest potrzebne do sortowania, zrób to wcześniej.
-    # Tutaj zakładamy, że do modelowania idą tylko cechy numeryczne.
     if 'Date/Time' in combined_df.columns:
-        # Sprawdź, czy 'Date/Time' nie jest jedną z cech, zanim usuniesz
-        # (na razie zakładamy, że nie jest cechą numeryczną dla modelu)
         combined_df_for_modeling = combined_df.drop(columns=['Date/Time'], errors='ignore')
     else:
         combined_df_for_modeling = combined_df.copy()
