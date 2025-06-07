@@ -1,50 +1,27 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import train_test_split # Już niepotrzebne bezpośrednio
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
-from utils.plotting_utils import plot_predictions_vs_actual_scatter, plot_predictions_over_samples # Importuj nowe funkcje
+from utils.plotting_utils import plot_predictions_vs_actual_scatter, plot_predictions_over_samples
+from utils.data_preprocessing import prepare_and_split_data_stratified # NOWY IMPORT
 
-def preprocess_data_for_modeling(df: pd.DataFrame, feature_cols: list, target_col: str):
-    """Przygotowuje dane do modelowania: wybór kolumn, konwersja, obsługa NaN."""
-    all_required_cols = feature_cols + [target_col]
-    missing_cols = [col for col in all_required_cols if col not in df.columns]
-    if missing_cols:
-        print(f"Brakujące kolumny w DataFrame: {missing_cols}. Pomijanie modelowania dla {target_col}.")
-        return None, None
-
-    data = df[all_required_cols].copy()
-    
-    for col in data.columns:
-        data[col] = pd.to_numeric(data[col], errors='coerce')
-        
-    data.dropna(inplace=True)
-
-    if data.empty or len(data) < 2:
-        print(f"Brak wystarczających danych dla modelowania celu {target_col} po usunięciu NaN. Pomijanie.")
-        return None, None
-
-    X = data[feature_cols]
-    y = data[target_col]
-
-    if X.empty or len(X) < 2:
-        print(f"Niewystarczająca ilość danych (X) dla {target_col} po preprocessingu. Pomijanie.")
-        return None, None
-    return X, y
+# Usunięto funkcję preprocess_data_for_modeling, ponieważ jej logika jest teraz w prepare_and_split_data_stratified
 
 def train_evaluate_random_forest_model(df: pd.DataFrame, feature_cols: list, target_col: str, plots_dir: str, plot_results: bool = True):
-    """Trenuje i ocenia model Random Forest Regressor."""
-    X, y = preprocess_data_for_modeling(df, feature_cols, target_col)
-    if X is None or y is None:
-        return None, {}
+    """Trenuje i ocenia model Random Forest Regressor używając stratyfikowanego podziału danych."""
+    X_train, X_test, y_train, y_test = prepare_and_split_data_stratified(
+        df, 
+        feature_cols, 
+        target_col,
+        test_size=0.2,
+        random_state=42,
+        regime_threshold=0.2
+    )
 
-    actual_test_size = 0.2
-    if len(X) < 5:
-        print(f"Ostrzeżenie: Mała ilość danych ({len(X)} próbek) dla {target_col} (Random Forest).")
-        if len(X) <= 1: return None, {}
-        if int(len(X) * actual_test_size) == 0: actual_test_size = 1 / len(X)
-    
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=actual_test_size, random_state=42, shuffle=True)
+    if X_train is None or X_test is None or y_train is None or y_test is None:
+        print(f"Nie udało się przygotować lub podzielić danych dla {target_col}. Pomijanie Random Forest.")
+        return None, {}
 
     if X_train.empty or X_test.empty:
         print(f"Zbiór treningowy lub testowy jest pusty dla {target_col} (Random Forest). Pomijanie.")
@@ -75,18 +52,19 @@ def train_evaluate_random_forest_model(df: pd.DataFrame, feature_cols: list, tar
     return model, metrics
 
 def train_evaluate_gradient_boosting_model(df: pd.DataFrame, feature_cols: list, target_col: str, plots_dir: str, plot_results: bool = True):
-    """Trenuje i ocenia model Gradient Boosting Regressor."""
-    X, y = preprocess_data_for_modeling(df, feature_cols, target_col)
-    if X is None or y is None:
+    """Trenuje i ocenia model Gradient Boosting Regressor używając stratyfikowanego podziału danych."""
+    X_train, X_test, y_train, y_test = prepare_and_split_data_stratified(
+        df, 
+        feature_cols, 
+        target_col,
+        test_size=0.2,
+        random_state=42,
+        regime_threshold=0.2
+    )
+
+    if X_train is None or X_test is None or y_train is None or y_test is None:
+        print(f"Nie udało się przygotować lub podzielić danych dla {target_col}. Pomijanie Gradient Boosting.")
         return None, {}
-
-    actual_test_size = 0.2
-    if len(X) < 5:
-        print(f"Ostrzeżenie: Mała ilość danych ({len(X)} próbek) dla {target_col} (Gradient Boosting).")
-        if len(X) <= 1: return None, {}
-        if int(len(X) * actual_test_size) == 0: actual_test_size = 1 / len(X)
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=actual_test_size, random_state=42, shuffle=True)
 
     if X_train.empty or X_test.empty:
         print(f"Zbiór treningowy lub testowy jest pusty dla {target_col} (Gradient Boosting). Pomijanie.")
