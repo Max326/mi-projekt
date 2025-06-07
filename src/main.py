@@ -10,7 +10,7 @@ from id.eda import exploratory_data_analysis, plot_downsampled_data_comparison
 def main():
     # --- Config ---
     MODEL_TYPE = "polynomial"  # "linear", "polynomial", "random_forest", "gradient_boosting"
-    POLYNOMIAL_DEGREE = 5
+    POLYNOMIAL_DEGREE = 4
     
     PLOT_RESULTS = True 
     PLOTS_DIR = "plots_output" 
@@ -41,7 +41,7 @@ def main():
     IQR_MULTIPLIER_FOR_OUTLIERS = 4.5
 
     file_path = os.path.join('data', 'K-1_MI.xlsx')
-    sheet_names_to_process = ['d2', 'd3', 'd5'] 
+    sheet_names_to_process = ['d2', 'd3', 'd5', 'd6'] 
     target_columns = [
         "temperatura wylotowa spalin - strona A",
         "temperatura wylotowa spalin - strona B"
@@ -242,11 +242,6 @@ def main():
         else:
             print(f"Nieznany typ modelu: {MODEL_TYPE}.")
             continue
-
-        if model:
-            print(f"Metryki dla {target_col} ({MODEL_TYPE}): {metrics}")
-        else:
-            print(f"Nie udało się wytrenować modelu {MODEL_TYPE} dla {target_col}.")
 
 if __name__ == "__main__":
     main()

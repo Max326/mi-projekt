@@ -7,7 +7,6 @@ def ensure_dir(directory_path: str):
     """Upewnia się, że katalog istnieje, tworząc go w razie potrzeby."""
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
-        print(f"Utworzono katalog: {directory_path}")
 
 def plot_predictions_vs_actual_scatter(y_test: pd.Series, predictions: np.ndarray, target_col: str, model_name: str, plots_dir: str):
     """Generuje i zapisuje wykres rozrzutu wartości rzeczywistych vs predykowanych."""
@@ -23,7 +22,6 @@ def plot_predictions_vs_actual_scatter(y_test: pd.Series, predictions: np.ndarra
     
     plot_filename = os.path.join(plots_dir, f"scatter_pred_vs_actual_{model_name.replace(' ', '_')}_{target_col.replace(' ', '_').replace('-', '_')}.png")
     plt.savefig(plot_filename)
-    print(f"Wykres rozrzutu zapisano jako: {plot_filename}")
     plt.close()
 
 def plot_predictions_over_samples(y_test: pd.Series, predictions: np.ndarray, target_col: str, model_name: str, plots_dir: str):
@@ -48,7 +46,6 @@ def plot_predictions_over_samples(y_test: pd.Series, predictions: np.ndarray, ta
     
     plot_filename = os.path.join(plots_dir, f"scatter_pred_over_samples_{model_name.replace(' ', '_')}_{target_col.replace(' ', '_').replace('-', '_')}.png")
     plt.savefig(plot_filename, dpi=300, bbox_inches='tight')
-    print(f"Wykres (punkty) zapisano jako: {plot_filename}")
     plt.close()
 
 def plot_outlier_visualization(
@@ -97,5 +94,4 @@ def plot_outlier_visualization(
     
     plot_filename = os.path.join(plots_dir, f"{base_filename}.png")
     plt.savefig(plot_filename, dpi=300)
-    print(f"Wykres wizualizacji danych/outlierów zapisano jako: {plot_filename}")
     plt.close()
