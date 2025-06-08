@@ -157,7 +157,7 @@ def prepare_and_split_data_stratified(
     df: pd.DataFrame, 
     feature_cols: list, 
     target_col: str, 
-    test_size: float = 0.2, 
+    test_size: float = 0.375, 
     random_state: int = 42,
     regime_threshold: float = 0.2
 ):
@@ -248,7 +248,7 @@ def prepare_and_split_data_stratified(
             test_size=actual_test_size, 
             random_state=random_state, 
             stratify=stratify_labels, 
-            shuffle=True 
+            shuffle=False 
         )
     except ValueError as e:
         print(f"Błąd podczas podziału danych dla {target_col} (prawdopodobnie z powodu stratyfikacji): {e}. Próba standardowego podziału.")
@@ -265,3 +265,52 @@ def prepare_and_split_data_stratified(
         return None, None, None, None
         
     return X_train, X_test, y_train, y_test
+
+
+# FUNKCJA DO TWORZENIA DANYCH DLA MODELU ARX
+def create_arx_data(df: pd.DataFrame, input_cols: list, output_cols: list, na: int, nb: int, nk: int = 1):
+    """
+    Tworzy macierz regresji (X) i wektor wyjść (y) dla modelu ARX.
+    Kluczowe: grupuje dane po kolumnie 'session_id', aby opóźnienia nie "przeciekały" między dniami.
+    Ta kolumna 'session_id' jest tworzona w locie w głównym skrypcie na podstawie nazw arkuszy.
+    """
+    if 'session_id' not in df.columns:
+        raise ValueError("DataFrame musi zawierać tymczasową kolumnę 'session_id' do grupowania danych po dniach.")
+    if nk < 1:
+        raise ValueError("Opóźnienie nk (transport delay) musi być co najmniej 1.")
+
+    all_lagged_dfs = []
+    
+    # Iteracja po każdej sesji (dniu), aby uniknąć przecieku danych
+    for session, group in df.groupby('session_id'):
+        day_df = group.copy()
+        
+        lagged_features = {}
+        
+        # Tworzenie opóźnionych cech dla wyjść (część AR)
+        for col in output_cols:
+            for i in range(1, na + 1):
+                lagged_features[f'AR_{col}_lag{i}'] = day_df[col].shift(i)
+                
+        # Tworzenie opóźnionych cech dla wejść (część X)
+        for col in input_cols:
+            # Uwaga: nk+nb, a nie nk+nb-1, bo range jest exclusive
+            for i in range(nk, nk + nb): 
+                lagged_features[f'X_{col}_lag{i}'] = day_df[col].shift(i)
+        
+        temp_df = pd.concat([day_df, pd.DataFrame(lagged_features, index=day_df.index)], axis=1)
+        all_lagged_dfs.append(temp_df)
+
+    final_df = pd.concat(all_lagged_dfs)
+    final_df.dropna(inplace=True)
+
+    X_cols = [col for col in final_df.columns if col.startswith('AR_') or col.startswith('X_')]
+    
+    if not X_cols:
+        print("Ostrzeżenie: Nie wygenerowano żadnych cech ARX. Sprawdź parametry na, nb, nk.")
+        return pd.DataFrame(), pd.DataFrame()
+
+    X_arx = final_df[X_cols]
+    y_arx = final_df[output_cols]
+    
+    return X_arx, y_arx

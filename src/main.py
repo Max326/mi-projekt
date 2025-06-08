@@ -2,15 +2,26 @@ import os
 import pandas as pd
 from data_load.data_loader import load_excel_data 
 from modeling.simple_model import train_evaluate_linear_model, train_evaluate_polynomial_model # Dodano train_evaluate_polynomial_model
-from modeling.advanced_models import train_evaluate_random_forest_model, train_evaluate_gradient_boosting_model 
+from modeling.advanced_models import train_evaluate_random_forest_model, train_evaluate_gradient_boosting_model, train_evaluate_dynamic_arx_model
 from utils.plotting_utils import ensure_dir, plot_outlier_visualization
 from utils.data_preprocessing import downsample_dataframe, remove_outliers_iqr 
 from id.eda import exploratory_data_analysis, plot_downsampled_data_comparison 
 
 def main():
     # --- Config ---
-    MODEL_TYPE = "random_forest"  # "linear", "polynomial", "random_forest", "gradient_boosting"
-    POLYNOMIAL_DEGREE = 4
+    MODEL_TYPE = "dynamic_arx_polynomial"  # "linear", "polynomial", "random_forest", "gradient_boosting", "dynamic_arx_linear", "dynamic_arx_polynomial"
+    
+    # Dynamic ARX model configuration
+    ARX_PARAMS = {
+        "na": 3,
+        "nb": 2,
+        "nk": 1,
+        "poly_degree": 2
+    }
+
+    TARGET_SAMPLING_PERIOD = '10s' # Konieczne do ujednolicenia danych
+    
+    POLYNOMIAL_DEGREE = 2
     
     PLOT_RESULTS = True 
     PLOTS_DIR = "plots_output" 
@@ -41,70 +52,41 @@ def main():
     IQR_MULTIPLIER_FOR_OUTLIERS = 4.5
 
     file_path = os.path.join('data', 'K-1_MI.xlsx')
-    sheet_names_to_process = ['d2', 'd3', 'd5', 'd6'] 
+    sheet_names_to_process = ['d2', 'd3', 'd5', 'd6']
     target_columns = [
         "temperatura wylotowa spalin - strona A",
         "temperatura wylotowa spalin - strona B"
     ]
 
-    if PLOT_RESULTS:
-        ensure_dir(PLOTS_DIR)
-    ensure_dir(EDA_OUTPUT_DIR) 
-    if DOWNSAMPLE_SHEET_NAME in sheet_names_to_process and PLOT_RESULTS: 
-        ensure_dir(DOWNSAMPLED_COMPARISON_DIR)
-    if PLOT_INPUT_DATA_VISUALIZATION: 
-        ensure_dir(INPUT_VISUALIZATION_DIR)
-
-    print("Faza identyfikacji pominięta w tej konfiguracji.")
-    if MODEL_TYPE == "polynomial":
-        print(f"\n--- Rozpoczęcie modelowania z użyciem: {MODEL_TYPE} (stopień: {POLYNOMIAL_DEGREE}) ---")
-    else:
-        print(f"\n--- Rozpoczęcie modelowania z użyciem: {MODEL_TYPE} ---")
-    
+    # --- Ładowanie i przygotowanie danych ---
     try:
         all_sheets_data = load_excel_data(file_path)
-    except FileNotFoundError as e:
-        print(e)
-        return
     except Exception as e:
-        print(f"Wystąpił błąd podczas ładowania danych: {e}")
+        print(f"Błąd ładowania danych: {e}")
         return
 
     data_frames_to_concat = []
     for sheet_name in sheet_names_to_process:
         if sheet_name in all_sheets_data:
-            sheet_df = all_sheets_data[sheet_name].copy() 
-
-            if sheet_name == 'd2':
-                all_b_cols_to_drop = [col for col in sheet_df.columns if 'strona B' in col]
-                existing_b_cols_to_drop = [col for col in all_b_cols_to_drop if col in sheet_df.columns]
-                if existing_b_cols_to_drop:
-                    sheet_df.drop(columns=existing_b_cols_to_drop, inplace=True, errors='ignore')
-                    print(f"Wykluczono kolumny dotyczące strony B dla arkusza {sheet_name}: {existing_b_cols_to_drop}")
+            sheet_df = all_sheets_data[sheet_name].copy()
             
-            current_target_cols_for_eda = [tc for tc in target_columns if tc in sheet_df.columns]
-            if current_target_cols_for_eda:
-                 exploratory_data_analysis(sheet_df, current_target_cols_for_eda, f"{sheet_name}_original", output_dir=EDA_OUTPUT_DIR)
+            # TO JEST KLUCZOWE: Tworzymy tymczasowy identyfikator dnia (sesji) na podstawie nazwy arkusza.
+            # Dzięki temu funkcja `create_arx_data` wie, gdzie jest granica między dniami.
+            sheet_df['session_id'] = sheet_name
 
-            if sheet_name == DOWNSAMPLE_SHEET_NAME and DOWNSAMPLE_SHEET_NAME in sheet_names_to_process:
-                print(f"Downsampling arkusza: {sheet_name} z oknem {DOWNSAMPLE_WINDOW} używając średniej.")
-                original_for_comparison = sheet_df.copy()
-                downsampled_df = downsample_dataframe(sheet_df, window_size=DOWNSAMPLE_WINDOW, aggregation_func='mean')
-                if not downsampled_df.empty:
-                    current_target_cols_for_downsample_plot = [tc for tc in target_columns if tc in original_for_comparison.columns and tc in downsampled_df.columns]
-                    if current_target_cols_for_downsample_plot and PLOT_RESULTS:
-                        plot_downsampled_data_comparison(original_for_comparison, downsampled_df, current_target_cols_for_downsample_plot, sheet_name, output_dir=DOWNSAMPLED_COMPARISON_DIR)
-                    sheet_df = downsampled_df
-                else:
-                    print(f"Ostrzeżenie: Arkusz {sheet_name} jest pusty po downsamplingu. Pomijanie.")
-                    continue
+            # Ujednolicenie kroku próbkowania
+            if 'Date/Time' in sheet_df.columns:
+                sheet_df['Date/Time'] = pd.to_datetime(sheet_df['Date/Time'], dayfirst=True)
+                sheet_df.set_index('Date/Time', inplace=True)
+                numeric_cols = sheet_df.select_dtypes(include='number').columns
+                resampled_numeric = sheet_df[numeric_cols].resample(TARGET_SAMPLING_PERIOD).mean()
+                resampled_session = sheet_df[['session_id']].resample(TARGET_SAMPLING_PERIOD).first().ffill()
+                sheet_df = pd.concat([resampled_numeric, resampled_session], axis=1).reset_index()
             
             data_frames_to_concat.append(sheet_df)
-        else:
-            print(f"Ostrzeżenie: Arkusz '{sheet_name}' nie znaleziony w pliku {file_path}.")
 
     if not data_frames_to_concat:
-        print("Nie załadowano żadnych danych do modelowania. Zakończenie.")
+        print("Nie załadowano danych. Zakończenie.")
         return
 
     combined_df = pd.concat(data_frames_to_concat, ignore_index=True)
@@ -172,88 +154,111 @@ def main():
             if PLOT_RESULTS and current_target_cols_for_eda_after_outliers:
                 exploratory_data_analysis(combined_df, current_target_cols_for_eda_after_outliers, "combined_after_outliers", output_dir=EDA_OUTPUT_DIR)
 
-    df_for_modeling = combined_df.drop(columns=['Date/Time'], errors='ignore')
+    if MODEL_TYPE.startswith("dynamic_arx"):
+        # Definicja bazowych wejść i wyjść dla modelu dynamicznego
+        output_features = ["temperatura wylotowa spalin - strona A", "temperatura wylotowa spalin - strona B"]
+        input_features = [
+            "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
+            "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B",
+            "przepływ powietrza pierwotnego", "ciśnienie wody wtryskowej do pary świeżej",
+            "temperatura za wtryskiem pary wtórnej - strona L", 
+            "temperatura za wtryskiem pary wtórnej - strona P"
+        ]
         
-    features_target_A = [
-        # "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
-        # "temperatura mieszanki za młynem E",
-        "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", 
-        "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
-        "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B", # Dodaję obie dla pewności
-        "przepływ powietrza pierwotnego",
-        "ciśnienie wody wtryskowej do pary świeżej",
-        "temperatura za wtryskiem pary wtórnej - strona L", 
-        "temperatura za wtryskiem pary wtórnej - strona P"
-    ]
-    target_A = "temperatura wylotowa spalin - strona A"
+        # JEDNO WYWOŁANIE DO CAŁEJ LOGIKI MODELU ARX
+        train_evaluate_dynamic_arx_model(
+            df=combined_df,
+            input_features=input_features,
+            output_features=output_features,
+            arx_params=ARX_PARAMS,
+            model_type=MODEL_TYPE,
+            plots_dir=PLOTS_DIR,
+            plot_results=PLOT_RESULTS
+        )
+    
+    else: # Logika dla modeli statycznych
+        df_for_modeling = combined_df.drop(columns=['Date/Time', 'session_id'], errors='ignore')
+            
+        features_target_A = [
+            # "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
+            # "temperatura mieszanki za młynem E",
+            "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", 
+            "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
+            "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B", # Dodaję obie dla pewności
+            "przepływ powietrza pierwotnego",
+            "ciśnienie wody wtryskowej do pary świeżej",
+            "temperatura za wtryskiem pary wtórnej - strona L", 
+            "temperatura za wtryskiem pary wtórnej - strona P"
+        ]
+        target_A = "temperatura wylotowa spalin - strona A"
 
-    features_target_B = [
-        # "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
-        # "temperatura mieszanki za młynem E",
-        "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", 
-        "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
-        "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B", # Dodaję obie dla pewności
-        "przepływ powietrza pierwotnego",
-        "ciśnienie wody wtryskowej do pary świeżej",
-        "temperatura za wtryskiem pary wtórnej - strona L", 
-        "temperatura za wtryskiem pary wtórnej - strona P"
-    ]
-    target_B = "temperatura wylotowa spalin - strona B"
+        features_target_B = [
+            # "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
+            # "temperatura mieszanki za młynem E",
+            "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", 
+            "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
+            "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B", # Dodaję obie dla pewności
+            "przepływ powietrza pierwotnego",
+            "ciśnienie wody wtryskowej do pary świeżej",
+            "temperatura za wtryskiem pary wtórnej - strona L", 
+            "temperatura za wtryskiem pary wtórnej - strona P"
+        ]
+        target_B = "temperatura wylotowa spalin - strona B"
 
-    targets_and_features_all = {target_A: features_target_A, target_B: features_target_B}
-    active_targets_and_features = {}
+        targets_and_features_all = {target_A: features_target_A, target_B: features_target_B}
+        active_targets_and_features = {}
 
-    for target_col, feature_cols in targets_and_features_all.items():
-        if target_col in df_for_modeling.columns:
-            existing_features = [f_col for f_col in feature_cols if f_col in df_for_modeling.columns]
-            if len(existing_features) == len(feature_cols):
-                active_targets_and_features[target_col] = existing_features
-            elif existing_features:
-                 print(f"Ostrzeżenie: Dla celu '{target_col}' modelowanie z częścią cech: {existing_features}.")
-                 active_targets_and_features[target_col] = existing_features
+        for target_col, feature_cols in targets_and_features_all.items():
+            if target_col in df_for_modeling.columns:
+                existing_features = [f_col for f_col in feature_cols if f_col in df_for_modeling.columns]
+                if len(existing_features) == len(feature_cols):
+                    active_targets_and_features[target_col] = existing_features
+                elif existing_features:
+                    print(f"Ostrzeżenie: Dla celu '{target_col}' modelowanie z częścią cech: {existing_features}.")
+                    active_targets_and_features[target_col] = existing_features
+                else:
+                    print(f"Ostrzeżenie: Dla celu '{target_col}' brak cech. Pomijanie.")
             else:
-                print(f"Ostrzeżenie: Dla celu '{target_col}' brak cech. Pomijanie.")
-        else:
-            print(f"Cel '{target_col}' nie istnieje w danych. Pomijanie.")
+                print(f"Cel '{target_col}' nie istnieje w danych. Pomijanie.")
 
-    for target_col, feature_cols in active_targets_and_features.items():
-        print(f"\n--- Modelowanie dla: {target_col} ---")
-        
-        if df_for_modeling.empty:
-            print(f"DataFrame dla modelowania celu {target_col} jest pusty. Pomijanie.")
-            continue
-        
-        if target_col not in df_for_modeling.columns or not all(f_col in df_for_modeling.columns for f_col in feature_cols):
-            print(f"Brak wymaganych kolumn dla {target_col} w df_for_modeling. Pomijanie.")
-            continue
+        for target_col, feature_cols in active_targets_and_features.items():
+            print(f"\n--- Modelowanie dla: {target_col} ---")
+            
+            if df_for_modeling.empty:
+                print(f"DataFrame dla modelowania celu {target_col} jest pusty. Pomijanie.")
+                continue
+            
+            if target_col not in df_for_modeling.columns or not all(f_col in df_for_modeling.columns for f_col in feature_cols):
+                print(f"Brak wymaganych kolumn dla {target_col} w df_for_modeling. Pomijanie.")
+                continue
 
-        model = None
-        metrics = {}
+            model = None
+            metrics = {}
 
-        if MODEL_TYPE == "linear":
-            model, metrics = train_evaluate_linear_model(
-                df_for_modeling, feature_cols, target_col, PLOTS_DIR, PLOT_RESULTS
-            )
-        elif MODEL_TYPE == "polynomial": # NOWA GAŁĄŹ
-            model, metrics = train_evaluate_polynomial_model(
-                df_for_modeling, 
-                feature_cols, 
-                target_col, 
-                PLOTS_DIR, 
-                PLOT_RESULTS,
-                degree=POLYNOMIAL_DEGREE
-            )
-        elif MODEL_TYPE == "random_forest":
-            model, metrics = train_evaluate_random_forest_model(
-                df_for_modeling, feature_cols, target_col, PLOTS_DIR, PLOT_RESULTS
-            )
-        elif MODEL_TYPE == "gradient_boosting":
-            model, metrics = train_evaluate_gradient_boosting_model(
-                df_for_modeling, feature_cols, target_col, PLOTS_DIR, PLOT_RESULTS
-            )
-        else:
-            print(f"Nieznany typ modelu: {MODEL_TYPE}.")
-            continue
+            if MODEL_TYPE == "linear":
+                model, metrics = train_evaluate_linear_model(
+                    df_for_modeling, feature_cols, target_col, PLOTS_DIR, PLOT_RESULTS
+                )
+            elif MODEL_TYPE == "polynomial": # NOWA GAŁĄŹ
+                model, metrics = train_evaluate_polynomial_model(
+                    df_for_modeling, 
+                    feature_cols, 
+                    target_col, 
+                    PLOTS_DIR, 
+                    PLOT_RESULTS,
+                    degree=POLYNOMIAL_DEGREE
+                )
+            elif MODEL_TYPE == "random_forest":
+                model, metrics = train_evaluate_random_forest_model(
+                    df_for_modeling, feature_cols, target_col, PLOTS_DIR, PLOT_RESULTS
+                )
+            elif MODEL_TYPE == "gradient_boosting":
+                model, metrics = train_evaluate_gradient_boosting_model(
+                    df_for_modeling, feature_cols, target_col, PLOTS_DIR, PLOT_RESULTS
+                )
+            else:
+                print(f"Nieznany typ modelu: {MODEL_TYPE}.")
+                continue
 
 if __name__ == "__main__":
     main()
