@@ -9,7 +9,7 @@ from id.eda import exploratory_data_analysis, plot_downsampled_data_comparison
 
 def main():
     # --- Config ---
-    MODEL_TYPE = "polynomial"  # "linear", "polynomial", "random_forest", "gradient_boosting"
+    MODEL_TYPE = "random_forest"  # "linear", "polynomial", "random_forest", "gradient_boosting"
     POLYNOMIAL_DEGREE = 4
     
     PLOT_RESULTS = True 
@@ -175,16 +175,28 @@ def main():
     df_for_modeling = combined_df.drop(columns=['Date/Time'], errors='ignore')
         
     features_target_A = [
-        "całkowity przepływ pary", "ciśnienie wody wtryskowej do pary wtórnej",
-        "klapy wentlatora podmuchu - strona A", "kąt wychylenia palnika róg #2",
-        "przepływ węgla do młyna B", "temperatura wlotowa powietrza - strona A"
+        # "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
+        # "temperatura mieszanki za młynem E",
+        "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", 
+        "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
+        "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B", # Dodaję obie dla pewności
+        "przepływ powietrza pierwotnego",
+        "ciśnienie wody wtryskowej do pary świeżej",
+        "temperatura za wtryskiem pary wtórnej - strona L", 
+        "temperatura za wtryskiem pary wtórnej - strona P"
     ]
     target_A = "temperatura wylotowa spalin - strona A"
 
     features_target_B = [
-        "całkowity przepływ pary", "ciśnienie wody wtryskowej do pary wtórnej",
-        "ciśnienie wody wtryskowej do pary świeżej", "przepływ powietrza pierwotnego",
-        "przepływ węgla do młyna E", "tlen w spalinach - strona B"
+        # "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
+        # "temperatura mieszanki za młynem E",
+        "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", 
+        "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
+        "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B", # Dodaję obie dla pewności
+        "przepływ powietrza pierwotnego",
+        "ciśnienie wody wtryskowej do pary świeżej",
+        "temperatura za wtryskiem pary wtórnej - strona L", 
+        "temperatura za wtryskiem pary wtórnej - strona P"
     ]
     target_B = "temperatura wylotowa spalin - strona B"
 

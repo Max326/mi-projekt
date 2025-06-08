@@ -153,8 +153,11 @@ def main():
         "przepływ powietrza pierwotnego",
         "zawór zdmuchiwaczy sadzy - strona L", "zawór zdmuchiwaczy sadzy - strona P",
         "ciśnienie wody wtryskowej do pary wtórnej",
+        # "ciśnienie wody wtryskowej do pary świeżej",
         "temperatura za wtryskiem pary wtórnej - strona L", 
-        "temperatura za wtryskiem pary wtórnej - strona P"
+        "temperatura za wtryskiem pary wtórnej - strona P",
+        "temperatura wylotowa spalin - strona A",
+        "temperatura wylotowa spalin - strona B"
     ]
     
     target_columns = [
