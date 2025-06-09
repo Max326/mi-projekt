@@ -197,9 +197,10 @@ def main():
             "temperatura mieszanki za młynem E",
             "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
             "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
-            "przepływ powietrza pierwotnego", "ciśnienie wody wtryskowej do pary świeżej",
-            "temperatura za wtryskiem pary wtórnej - strona L ", 
-            "temperatura za wtryskiem pary wtórnej - strona P"
+            "ciśnienie wody wtryskowej do pary świeżej",
+            "temperatura wlotowa powietrza - strona A",
+            # "temperatura za wtryskiem pary wtórnej - strona L ", 
+            # "temperatura za wtryskiem pary wtórnej - strona P"
         ]
         target_A = "temperatura wylotowa spalin - strona A"
 
@@ -208,9 +209,10 @@ def main():
             "temperatura mieszanki za młynem E",
             "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
             "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
-            "przepływ powietrza pierwotnego", "ciśnienie wody wtryskowej do pary świeżej",
-            "temperatura za wtryskiem pary wtórnej - strona L ", 
-            "temperatura za wtryskiem pary wtórnej - strona P"
+            "ciśnienie wody wtryskowej do pary świeżej",
+            "temperatura wlotowa powietrza - strona A",
+            # "temperatura za wtryskiem pary wtórnej - strona L ", 
+            # "temperatura za wtryskiem pary wtórnej - strona P"
         ]
         target_B = "temperatura wylotowa spalin - strona B"
         
