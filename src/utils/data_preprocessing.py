@@ -298,7 +298,7 @@ def create_arx_data(df: pd.DataFrame, input_cols: list, output_cols: list, na: i
             for i in range(nk, nk + nb): 
                 lagged_features[f'X_{col}_lag{i}'] = day_df[col].shift(i)
         
-        temp_df = pd.concat([day_df, pd.DataFrame(lagged_features, index=day_df.index)], axis=1)
+        temp_df = pd.concat([group, pd.DataFrame(lagged_features, index=group.index)], axis=1)
         all_lagged_dfs.append(temp_df)
 
     final_df = pd.concat(all_lagged_dfs)
@@ -306,11 +306,5 @@ def create_arx_data(df: pd.DataFrame, input_cols: list, output_cols: list, na: i
 
     X_cols = [col for col in final_df.columns if col.startswith('AR_') or col.startswith('X_')]
     
-    if not X_cols:
-        print("Ostrzeżenie: Nie wygenerowano żadnych cech ARX. Sprawdź parametry na, nb, nk.")
-        return pd.DataFrame(), pd.DataFrame()
-
-    X_arx = final_df[X_cols]
-    y_arx = final_df[output_cols]
-    
-    return X_arx, y_arx
+    # ZWRACAMY CAŁY DATAFRAME Z POTRZEBNYMI KOLUMNAMI
+    return final_df, X_cols

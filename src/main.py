@@ -155,32 +155,50 @@ def main():
                 exploratory_data_analysis(combined_df, current_target_cols_for_eda_after_outliers, "combined_after_outliers", output_dir=EDA_OUTPUT_DIR)
 
     if MODEL_TYPE.startswith("dynamic_arx"):
-        # Definicja bazowych wejść i wyjść dla modelu dynamicznego
-        output_features = ["temperatura wylotowa spalin - strona A", "temperatura wylotowa spalin - strona B"]
-        input_features = [
+        print(f"\n--- Rozpoczęcie modelowania dynamicznego: {MODEL_TYPE} ---")
+
+        # KLUCZOWA ZMIANA: Osobne wejścia dla każdego celu!
+        # Poniżej przykład - musisz je dobrać na podstawie wiedzy o obiekcie.
+        features_target_A = [
             "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
-            "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B",
+            "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
             "przepływ powietrza pierwotnego", "ciśnienie wody wtryskowej do pary świeżej",
-            "temperatura za wtryskiem pary wtórnej - strona L", 
+            "temperatura za wtryskiem pary wtórnej - strona L ", 
             "temperatura za wtryskiem pary wtórnej - strona P"
         ]
+        target_A = "temperatura wylotowa spalin - strona A"
+
+        features_target_B = [
+            "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
+            "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
+            "przepływ powietrza pierwotnego", "ciśnienie wody wtryskowej do pary świeżej",
+            "temperatura za wtryskiem pary wtórnej - strona L ", 
+            "temperatura za wtryskiem pary wtórnej - strona P"
+        ]
+        target_B = "temperatura wylotowa spalin - strona B"
         
+        targets_and_features_arx = {
+            target_A: features_target_A,
+            target_B: features_target_B
+        }
+
         TRAIN_DAYS = ['d2', 'd3']
         TEST_DAYS = ['d5', 'd6']
-        
-        # JEDNO WYWOŁANIE DO CAŁEJ LOGIKI MODELU ARX - ZMIANA ARGUMENTÓW
-        train_evaluate_dynamic_arx_model(
-            df=combined_df,
-            input_features=input_features,
-            output_features=output_features,
-            arx_params=ARX_PARAMS,
-            model_type=MODEL_TYPE,
-            # NOWE ARGUMENTY
-            train_sessions=TRAIN_DAYS,
-            test_sessions=TEST_DAYS,
-            plots_dir=PLOTS_DIR,
-            plot_results=PLOT_RESULTS
-        )
+
+        # Pętla trenująca osobny model dla każdego celu
+        for target_col, input_features in targets_and_features_arx.items():
+            train_evaluate_dynamic_arx_model(
+                # Używamy zresetowanego indeksu, aby .join działał poprawnie
+                df=combined_df,
+                input_features=input_features,
+                target_col=target_col,
+                arx_params=ARX_PARAMS,
+                model_type=MODEL_TYPE,
+                train_sessions=TRAIN_DAYS,
+                test_sessions=TEST_DAYS,
+                plots_dir=PLOTS_DIR,
+                plot_results=PLOT_RESULTS
+            )
     
     else: # Logika dla modeli statycznych
         df_for_modeling = combined_df.drop(columns=['Date/Time', 'session_id'], errors='ignore')
@@ -190,7 +208,7 @@ def main():
             # "temperatura mieszanki za młynem E",
             "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", 
             "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
-            "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B", # Dodaję obie dla pewności
+            "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B", # Dodaję obie dla pewności
             "przepływ powietrza pierwotnego",
             "ciśnienie wody wtryskowej do pary świeżej",
             "temperatura za wtryskiem pary wtórnej - strona L", 
@@ -203,7 +221,7 @@ def main():
             # "temperatura mieszanki za młynem E",
             "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", 
             "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
-            "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B", # Dodaję obie dla pewności
+            "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B", # Dodaję obie dla pewności
             "przepływ powietrza pierwotnego",
             "ciśnienie wody wtryskowej do pary świeżej",
             "temperatura za wtryskiem pary wtórnej - strona L", 

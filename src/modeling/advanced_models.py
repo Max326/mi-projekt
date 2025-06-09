@@ -120,90 +120,107 @@ def train_evaluate_gradient_boosting_model(df: pd.DataFrame, feature_cols: list,
 def train_evaluate_dynamic_arx_model(
     df: pd.DataFrame, 
     input_features: list,
-    output_features: list,
+    target_col: str, # ZMIANA: Pracujemy na jednym celu na raz
     arx_params: dict,
     model_type: str,
-    # NOWE PARAMETRY DO KONTROLI PODZIAŁU
     train_sessions: list,
     test_sessions: list,
     plots_dir: str,
     plot_results: bool = True
 ):
     """
-    Kompleksowa funkcja do trenowania i oceny dynamicznego modelu ARX.
-    Umożliwia ręczny podział danych na zbiory treningowe i testowe na podstawie sesji (dni).
+    Trenuje i ocenia JEDEN dynamiczny model ARX dla pojedynczego wyjścia (SISO).
     """
-    # ... (kod pobierania parametrów na, nb, nk, poly_degree pozostaje bez zmian) ...
     na = arx_params.get('na', 2)
     nb = arx_params.get('nb', 2)
     nk = arx_params.get('nk', 1)
     poly_degree = arx_params.get('poly_degree', 2)
-    
-    print(f"\n--- Przygotowanie danych dla modelu dynamicznego ARX ---")
+    output_feature_list = [target_col]
+
+    print(f"\n--- Przygotowanie danych ARX dla celu: {target_col} ---")
     
     active_inputs = [col for col in input_features if col in df.columns]
-    active_outputs = [col for col in output_features if col in df.columns]
-
     X_arx, y_arx = create_arx_data(
-        df=df.dropna(subset=active_inputs + active_outputs),
+        df=df.dropna(subset=active_inputs + output_feature_list),
         input_cols=active_inputs,
-        output_cols=active_outputs,
+        output_cols=output_feature_list,
         na=na, nb=nb, nk=nk
     )
-    
-    # ZMIANA: RĘCZNY PODZIAŁ DANYCH ZAMIAST train_test_split
-    # Łączymy macierze X i y z powrotem, aby łatwo filtrować po 'session_id'
-    full_arx_df = pd.concat([X_arx, y_arx], axis=1)
-    # Dodajemy z powrotem 'session_id' - musi mieć ten sam indeks co X_arx i y_arx
-    full_arx_df['session_id'] = df.loc[full_arx_df.index, 'session_id']
 
-    # Filtrowanie danych treningowych i testowych na podstawie list sesji
+    if X_arx.empty:
+        print(f"Nie udało się stworzyć danych ARX dla {target_col}. Pomijanie.")
+        return
+
+    full_arx_df, X_cols = create_arx_data(
+        df=df.dropna(subset=input_features + [target_col]),
+        input_cols=input_features,
+        output_cols=[target_col],
+        na=na, nb=nb, nk=nk
+    )
+
+    if full_arx_df.empty:
+        print(f"Nie udało się stworzyć danych ARX dla {target_col}.")
+        return
+
+    # Teraz podział jest prosty i pewny
     train_df = full_arx_df[full_arx_df['session_id'].isin(train_sessions)]
     test_df = full_arx_df[full_arx_df['session_id'].isin(test_sessions)]
 
     if train_df.empty or test_df.empty:
-        print("Błąd: Zbiór treningowy lub testowy jest pusty. Sprawdź nazwy sesji.")
+        print(f"Błąd: Zbiór treningowy lub testowy jest pusty dla {target_col}.")
         return
 
-    X_train = train_df[X_arx.columns]
-    y_train_df = train_df[y_arx.columns]
-    
-    X_test = test_df[X_arx.columns]
-    y_test_df = test_df[y_arx.columns]
-    
+    X_train, y_train = train_df[X_arx.columns], train_df[target_col]
+    X_test, y_test = test_df[X_arx.columns], test_df[target_col]
+
     print(f"Dane treningowe z sesji: {train_sessions}. Liczba próbek: {len(X_train)}")
     print(f"Dane testowe z sesji: {test_sessions}. Liczba próbek: {len(X_test)}")
+    
+    # ZMIANA: Budowanie pipeline'u BEZ StandardScaler
+    if model_type == "dynamic_arx_linear":
+        pipeline = Pipeline([
+            ('linear_regression', LinearRegression())
+        ])
+        model_name = f"ARX_Linear_NoScale_{target_col.replace(' ', '_')[:10]}"
+    elif model_type == "dynamic_arx_polynomial":
+        pipeline = Pipeline([
+            ('poly', PolynomialFeatures(degree=poly_degree, include_bias=False)),
+            ('linear_regression', LinearRegression())
+        ])
+        model_name = f"ARX_Poly_NoScale_deg{poly_degree}_{target_col.replace(' ', '_')[:10]}"
+    else:
+        print(f"Nieznany typ modelu dynamicznego: {model_type}")
+        return
 
-    # ... (reszta funkcji, pętla 'for target_col in active_outputs:', pozostaje niemal bez zmian) ...
-    for target_col in active_outputs:
-        print(f"\n--- Modelowanie ARX dla celu: {target_col} ---")
+    print(f"Trening modelu: {model_name}")
+    pipeline.fit(X_train, y_train)
+    predictions = pipeline.predict(X_test)
+
+    # Logika metryk...
+    mse = mean_squared_error(y_test, predictions)
+    r2 = r2_score(y_test, predictions)
+    mae = mean_absolute_error(y_test, predictions)
+    rmse = np.sqrt(mse)
+    
+    n_test = len(y_test)
+    if n_test == 0:
+        print("Brak danych w zbiorze testowym do obliczenia metryk.")
+        return
+
+    p_features = X_train.shape[1]
+    if 'poly' in pipeline.named_steps:
+        p_features = pipeline.named_steps['poly'].n_output_features_
         
-        y_train = y_train_df[target_col]
-        y_test = y_test_df[target_col]
-        
-        # Budowanie pipeline'u modelu
-        if model_type == "dynamic_arx_linear":
-            model_pipeline = Pipeline([('linear_regression', LinearRegression())])
-            model_name_str = f"ARX_Linear_na{na}_nb{nb}_nk{nk}"
-        elif model_type == "dynamic_arx_polynomial":
-            model_pipeline = Pipeline([
-                ('polynomialfeatures', PolynomialFeatures(degree=poly_degree, include_bias=False)),
-                ('linear_regression', LinearRegression())
-            ])
-            model_name_str = f"ARX_Poly_deg{poly_degree}_na{na}_nb{nb}_nk{nk}"
-        else:
-            print(f"Nieznany typ modelu dynamicznego: {model_type}. Pomijanie.")
-            continue
-            
-        # Wywołanie generycznej funkcji do treningu i oceny
-        _run_single_arx_evaluation(
-            X_train, y_train, X_test, y_test,
-            model_pipeline=model_pipeline,
-            target_col=target_col,
-            model_name=model_name_str,
-            plots_dir=plots_dir,
-            plot_results=plot_results
-        )
+    adj_r2 = calculate_adj_r2(r2, n_test, p_features)
+    metrics = {'mse': mse, 'r2': r2, 'mae': mae, 'rmse': rmse, 'adj_r2': adj_r2}
+    calculate_dynamic_static_metrics(y_test, predictions, metrics)
+
+    print(f"Global MSE: {mse:.4f}, MAE: {mae:.4f}, RMSE: {rmse:.4f}")
+    print(f"Global R2: {r2:.4f}, Adjusted R2: {adj_r2:.4f}")
+    
+    if plot_results:
+        plot_predictions_vs_actual_scatter(y_test, predictions, target_col, model_name, plots_dir)
+        plot_predictions_over_samples(y_test, predictions, target_col, model_name, plots_dir)
 
 
 def _run_single_arx_evaluation(X_train, y_train, X_test, y_test, model_pipeline, target_col, model_name, plots_dir, plot_results):

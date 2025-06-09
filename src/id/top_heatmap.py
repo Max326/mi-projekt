@@ -149,7 +149,7 @@ def main():
         "temperatura mieszanki za młynem E",
         "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", 
         "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
-        "klapy wentylatora podmuchu - strona A", "klapy wentylatora podmuchu - strona B", # Dodaję obie dla pewności
+        "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B", # Dodaję obie dla pewności
         "przepływ powietrza pierwotnego",
         "zawór zdmuchiwaczy sadzy - strona L", "zawór zdmuchiwaczy sadzy - strona P",
         "ciśnienie wody wtryskowej do pary wtórnej",
