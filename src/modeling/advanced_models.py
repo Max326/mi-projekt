@@ -140,7 +140,6 @@ def train_evaluate_dynamic_arx_model(
     
     active_inputs = [col for col in input_features if col in df.columns]
     
-    # JEDNO, POPRAWNE WYWOŁANIE create_arx_data
     full_arx_df, X_cols = create_arx_data(
         df=df.dropna(subset=active_inputs + [target_col]),
         input_cols=active_inputs,
@@ -160,7 +159,6 @@ def train_evaluate_dynamic_arx_model(
         print(f"Błąd: Zbiór treningowy lub testowy jest pusty dla {target_col}.")
         return
 
-    # POPRAWKA: Używamy X_cols, a nie X_arx.columns
     X_train, y_train = train_df[X_cols], train_df[target_col]
     X_test, y_test = test_df[X_cols], test_df[target_col]
 
@@ -205,39 +203,6 @@ def train_evaluate_dynamic_arx_model(
     print(f"Global MSE: {mse:.4f}, MAE: {mae:.4f}, RMSE: {rmse:.4f}")
     print(f"Global R2: {r2:.4f}, Adjusted R2: {adj_r2:.4f}")
     
-    if plot_results:
-        plot_predictions_vs_actual_scatter(y_test, predictions, target_col, model_name, plots_dir)
-        plot_predictions_over_samples(y_test, predictions, target_col, model_name, plots_dir)
-        
-
-def _run_single_arx_evaluation(X_train, y_train, X_test, y_test, model_pipeline, target_col, model_name, plots_dir, plot_results):
-    """Helper function to fit, predict, and print metrics for a single ARX model run."""
-    print(f"Trening modelu: {model_name}")
-    model_pipeline.fit(X_train, y_train)
-    predictions = model_pipeline.predict(X_test)
-    
-    # Tutaj wklej logikę obliczania i drukowania metryk z Twoich istniejących funkcji
-    # (mean_squared_error, r2_score, calculate_adj_r2, etc.)
-    mse = mean_squared_error(y_test, predictions)
-    r2 = r2_score(y_test, predictions)
-    mae = mean_absolute_error(y_test, predictions)
-    rmse = np.sqrt(mse)
-    
-    n_test = len(y_test)
-    try:
-        p_features = model_pipeline.named_steps['polynomialfeatures'].n_output_features_
-    except KeyError:
-        p_features = X_train.shape[1]
-    adj_r2 = calculate_adj_r2(r2, n_test, p_features)
-
-    metrics = {'mse': mse, 'r2': r2, 'mae': mae, 'rmse': rmse, 'adj_r2': adj_r2}
-    calculate_dynamic_static_metrics(y_test, predictions, metrics)
-
-    print(f"Global MSE: {mse:.4f}, MAE: {mae:.4f}, RMSE: {rmse:.4f}")
-    print(f"Global R2: {r2:.4f}, Adjusted R2: {adj_r2:.4f}")
-    print(f"Dynamic Change MSE: {metrics.get('mse_dynamic_change', np.nan):.4f}, MAE: {metrics.get('mae_dynamic_change', np.nan):.4f}, R2: {metrics.get('r2_dynamic_change', np.nan):.4f}")
-    print(f"Static Continuation MSE: {metrics.get('mse_static_cont', np.nan):.4f}, MAE: {metrics.get('mae_static_cont', np.nan):.4f}, R2: {metrics.get('r2_static_cont', np.nan):.4f}")
-
     if plot_results:
         plot_predictions_vs_actual_scatter(y_test, predictions, target_col, model_name, plots_dir)
         plot_predictions_over_samples(y_test, predictions, target_col, model_name, plots_dir)

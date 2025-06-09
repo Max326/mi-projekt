@@ -14,7 +14,7 @@ def main():
     
     # Dynamic ARX model configuration
     ARX_PARAMS = {
-        "na": 3,
+        "na": 4,
         "nb": 2,
         "nk": 1,
         "poly_degree": 2
@@ -193,6 +193,8 @@ def main():
         # KLUCZOWA ZMIANA: Osobne wejścia dla każdego celu!
         # Poniżej przykład - musisz je dobrać na podstawie wiedzy o obiekcie.
         features_target_A = [
+            "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
+            "temperatura mieszanki za młynem E",
             "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
             "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
             "przepływ powietrza pierwotnego", "ciśnienie wody wtryskowej do pary świeżej",
@@ -202,6 +204,8 @@ def main():
         target_A = "temperatura wylotowa spalin - strona A"
 
         features_target_B = [
+            "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
+            "temperatura mieszanki za młynem E",
             "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
             "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
             "przepływ powietrza pierwotnego", "ciśnienie wody wtryskowej do pary świeżej",
@@ -216,7 +220,7 @@ def main():
         }
 
         TRAIN_DAYS = ['d3', 'd6']
-        TEST_DAYS = ['d2']
+        TEST_DAYS = ['d2', 'd5']
 
         # Pętla trenująca osobny model dla każdego celu
         for target_col, input_features in targets_and_features_arx.items():
