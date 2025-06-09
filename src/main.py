@@ -9,7 +9,7 @@ from id.eda import exploratory_data_analysis, plot_downsampled_data_comparison
 
 def main():
     # --- Config ---
-    MODEL_TYPE = "dynamic_arx_polynomial"  # "linear", "polynomial", "random_forest", "gradient_boosting", "dynamic_arx_linear", "dynamic_arx_polynomial"
+    MODEL_TYPE = "dynamic_arx_linear"  # "linear", "polynomial", "random_forest", "gradient_boosting", "dynamic_arx_linear", "dynamic_arx_polynomial"
     
     # Dynamic ARX model configuration
     ARX_PARAMS = {
@@ -165,13 +165,19 @@ def main():
             "temperatura za wtryskiem pary wtórnej - strona P"
         ]
         
-        # JEDNO WYWOŁANIE DO CAŁEJ LOGIKI MODELU ARX
+        TRAIN_DAYS = ['d2', 'd3']
+        TEST_DAYS = ['d5', 'd6']
+        
+        # JEDNO WYWOŁANIE DO CAŁEJ LOGIKI MODELU ARX - ZMIANA ARGUMENTÓW
         train_evaluate_dynamic_arx_model(
             df=combined_df,
             input_features=input_features,
             output_features=output_features,
             arx_params=ARX_PARAMS,
             model_type=MODEL_TYPE,
+            # NOWE ARGUMENTY
+            train_sessions=TRAIN_DAYS,
+            test_sessions=TEST_DAYS,
             plots_dir=PLOTS_DIR,
             plot_results=PLOT_RESULTS
         )

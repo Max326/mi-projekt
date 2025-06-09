@@ -122,19 +122,23 @@ def train_evaluate_dynamic_arx_model(
     input_features: list,
     output_features: list,
     arx_params: dict,
-    model_type: str, # "dynamic_arx_linear" lub "dynamic_arx_polynomial"
+    model_type: str,
+    # NOWE PARAMETRY DO KONTROLI PODZIAŁU
+    train_sessions: list,
+    test_sessions: list,
     plots_dir: str,
     plot_results: bool = True
 ):
     """
     Kompleksowa funkcja do trenowania i oceny dynamicznego modelu ARX.
-    Cała logika jest tutaj, z dala od main.py.
+    Umożliwia ręczny podział danych na zbiory treningowe i testowe na podstawie sesji (dni).
     """
+    # ... (kod pobierania parametrów na, nb, nk, poly_degree pozostaje bez zmian) ...
     na = arx_params.get('na', 2)
     nb = arx_params.get('nb', 2)
     nk = arx_params.get('nk', 1)
     poly_degree = arx_params.get('poly_degree', 2)
-
+    
     print(f"\n--- Przygotowanie danych dla modelu dynamicznego ARX ---")
     
     active_inputs = [col for col in input_features if col in df.columns]
@@ -146,21 +150,36 @@ def train_evaluate_dynamic_arx_model(
         output_cols=active_outputs,
         na=na, nb=nb, nk=nk
     )
+    
+    # ZMIANA: RĘCZNY PODZIAŁ DANYCH ZAMIAST train_test_split
+    # Łączymy macierze X i y z powrotem, aby łatwo filtrować po 'session_id'
+    full_arx_df = pd.concat([X_arx, y_arx], axis=1)
+    # Dodajemy z powrotem 'session_id' - musi mieć ten sam indeks co X_arx i y_arx
+    full_arx_df['session_id'] = df.loc[full_arx_df.index, 'session_id']
 
-    if X_arx.empty:
-        print("Nie udało się stworzyć danych ARX. Modelowanie przerwane.")
+    # Filtrowanie danych treningowych i testowych na podstawie list sesji
+    train_df = full_arx_df[full_arx_df['session_id'].isin(train_sessions)]
+    test_df = full_arx_df[full_arx_df['session_id'].isin(test_sessions)]
+
+    if train_df.empty or test_df.empty:
+        print("Błąd: Zbiór treningowy lub testowy jest pusty. Sprawdź nazwy sesji.")
         return
 
-    print(f"Stworzono macierz regresorów ARX o kształcie: {X_arx.shape}")
+    X_train = train_df[X_arx.columns]
+    y_train_df = train_df[y_arx.columns]
+    
+    X_test = test_df[X_arx.columns]
+    y_test_df = test_df[y_arx.columns]
+    
+    print(f"Dane treningowe z sesji: {train_sessions}. Liczba próbek: {len(X_train)}")
+    print(f"Dane testowe z sesji: {test_sessions}. Liczba próbek: {len(X_test)}")
 
+    # ... (reszta funkcji, pętla 'for target_col in active_outputs:', pozostaje niemal bez zmian) ...
     for target_col in active_outputs:
         print(f"\n--- Modelowanie ARX dla celu: {target_col} ---")
         
-        y_target = y_arx[target_col]
-
-        X_train, X_test, y_train, y_test = train_test_split(
-            X_arx, y_target, test_size=0.2, shuffle=False, random_state=42
-        )
+        y_train = y_train_df[target_col]
+        y_test = y_test_df[target_col]
         
         # Budowanie pipeline'u modelu
         if model_type == "dynamic_arx_linear":
