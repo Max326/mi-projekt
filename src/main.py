@@ -195,8 +195,8 @@ def main():
         features_target_A = [
             "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
             "temperatura mieszanki za młynem E",
-            "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
-            "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
+            # "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #4",
+            "klapy wentlatora podmuchu - strona A",
             "ciśnienie wody wtryskowej do pary świeżej",
             "temperatura wlotowa powietrza - strona A",
             "temperatura za wtryskiem pary wtórnej - strona L ", 
@@ -206,8 +206,8 @@ def main():
 
         features_target_B = [
             "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
-            "temperatura mieszanki za młynem E",
-            "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #3", "kąt wychylenia palnika róg #4",
+            # "temperatura mieszanki za młynem E",
+            # "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #4",
             "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
             "ciśnienie wody wtryskowej do pary świeżej",
             "temperatura wlotowa powietrza - strona A",
@@ -221,8 +221,8 @@ def main():
             target_B: features_target_B
         }
 
-        TRAIN_DAYS = ['d3', 'd6']
-        TEST_DAYS = ['d2', 'd5']
+        TRAIN_DAYS =  ['d2', 'd5']
+        TEST_DAYS = ['d3', 'd6']
 
         # Pętla trenująca osobny model dla każdego celu
         for target_col, input_features in targets_and_features_arx.items():
