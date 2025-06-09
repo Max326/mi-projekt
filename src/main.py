@@ -216,7 +216,7 @@ def main():
         }
 
         TRAIN_DAYS = ['d2', 'd3']
-        TEST_DAYS = ['d5', 'd6']
+        TEST_DAYS = ['d5']
 
         # Pętla trenująca osobny model dla każdego celu
         for target_col, input_features in targets_and_features_arx.items():
