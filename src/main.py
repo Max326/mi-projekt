@@ -208,7 +208,7 @@ def main():
             "temperatura mieszanki za młynem A", "temperatura mieszanki za młynem F", 
             # "temperatura mieszanki za młynem E",
             # "kąt wychylenia palnika róg #1", "kąt wychylenia palnika róg #2", "kąt wychylenia palnika róg #4",
-            "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
+            "klapy wentlatora podmuchu - strona B",
             "ciśnienie wody wtryskowej do pary świeżej",
             "temperatura wlotowa powietrza - strona A",
             # "temperatura za wtryskiem pary wtórnej - strona L ", 
@@ -221,7 +221,7 @@ def main():
             target_B: features_target_B
         }
 
-        TRAIN_DAYS =  ['d2', 'd5']
+        TRAIN_DAYS = ['d2', 'd5']
         TEST_DAYS = ['d3', 'd6']
 
         # Pętla trenująca osobny model dla każdego celu
