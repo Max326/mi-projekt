@@ -187,9 +187,9 @@ def main():
 
         # Pętla trenująca osobny model dla każdego celu
         for target_col, input_features in targets_and_features_arx.items():
+            # ZMIANA: Przekazujemy oryginalny combined_df bez resetowania indeksu
             train_evaluate_dynamic_arx_model(
-                # Używamy zresetowanego indeksu, aby .join działał poprawnie
-                df=combined_df,
+                df=combined_df, 
                 input_features=input_features,
                 target_col=target_col,
                 arx_params=ARX_PARAMS,
