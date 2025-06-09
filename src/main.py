@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np # Upewnij się, że ten import jest na górze pliku
 from data_load.data_loader import load_excel_data 
 from modeling.simple_model import train_evaluate_linear_model, train_evaluate_polynomial_model # Dodano train_evaluate_polynomial_model
 from modeling.advanced_models import train_evaluate_random_forest_model, train_evaluate_gradient_boosting_model, train_evaluate_dynamic_arx_model
@@ -65,25 +66,57 @@ def main():
         print(f"Błąd ładowania danych: {e}")
         return
 
+    # <<< NOWA, KLUCZOWA SEKCJA: CZYSZCZENIE DANYCH >>>
+    print("\n--- Rozpoczęcie czyszczenia danych ---")
+    cleaned_sheets_data = {}
+    for sheet_name, df in all_sheets_data.items():
+        if sheet_name in sheet_names_to_process:
+            print(f"Czyszczenie arkusza: {sheet_name}")
+            df_copy = df.copy()
+            
+            # Krok 1: Zastąp tekst ' Bad Data' wartością NaN, aby można było z nim pracować
+            df_copy.replace(to_replace=r'.*Bad Data.*', value=np.nan, regex=True, inplace=True)
+            
+            # Krok 2: Upewnij się, że wszystkie kolumny, które powinny być numeryczne, są numeryczne
+            # Wybieramy wszystkie kolumny oprócz 'Date/Time' do konwersji
+            cols_to_convert = [col for col in df_copy.columns if col != 'Date/Time']
+            for col in cols_to_convert:
+                df_copy[col] = pd.to_numeric(df_copy[col], errors='coerce')
+
+            # Krok 3: Inteligentna imputacja - wypełnianie brakujących danych (NaN)
+            # Używamy forward fill, który propaguje ostatnią poprawną wartość.
+            # To jest standardowe i dobre podejście dla danych procesowych, gdzie wartości
+            # nie zmieniają się gwałtownie z próbki na próbkę.
+            df_copy.ffill(inplace=True)
+            
+            # Krok 4: Na wszelki wypadek, jeśli na samym początku były NaN, używamy back fill
+            df_copy.bfill(inplace=True)
+            
+            cleaned_sheets_data[sheet_name] = df_copy
+            
+    # Zastępujemy słownik z danymi na ten wyczyszczony
+    all_sheets_data = cleaned_sheets_data
+    # <<< KONIEC NOWEJ SEKCJI >>>
+
     data_frames_to_concat = []
     for sheet_name in sheet_names_to_process:
         if sheet_name in all_sheets_data:
-            sheet_df = all_sheets_data[sheet_name].copy()
+            sheet_df = all_sheets_data[sheet_name] # Nie trzeba już .copy()
             
-            # TO JEST KLUCZOWE: Tworzymy tymczasowy identyfikator dnia (sesji) na podstawie nazwy arkusza.
-            # Dzięki temu funkcja `create_arx_data` wie, gdzie jest granica między dniami.
             sheet_df['session_id'] = sheet_name
 
-            # Ujednolicenie kroku próbkowania
             if 'Date/Time' in sheet_df.columns:
                 sheet_df['Date/Time'] = pd.to_datetime(sheet_df['Date/Time'], dayfirst=True)
                 sheet_df.set_index('Date/Time', inplace=True)
+                
+                # Resampling teraz działa na czystych danych
                 numeric_cols = sheet_df.select_dtypes(include='number').columns
                 resampled_numeric = sheet_df[numeric_cols].resample(TARGET_SAMPLING_PERIOD).mean()
                 resampled_session = sheet_df[['session_id']].resample(TARGET_SAMPLING_PERIOD).first().ffill()
                 sheet_df = pd.concat([resampled_numeric, resampled_session], axis=1).reset_index()
             
             data_frames_to_concat.append(sheet_df)
+
 
     if not data_frames_to_concat:
         print("Nie załadowano danych. Zakończenie.")
