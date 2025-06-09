@@ -199,8 +199,8 @@ def main():
             "klapy wentlatora podmuchu - strona A", "klapy wentlatora podmuchu - strona B",
             "ciśnienie wody wtryskowej do pary świeżej",
             "temperatura wlotowa powietrza - strona A",
-            # "temperatura za wtryskiem pary wtórnej - strona L ", 
-            # "temperatura za wtryskiem pary wtórnej - strona P"
+            "temperatura za wtryskiem pary wtórnej - strona L ", 
+            "temperatura za wtryskiem pary wtórnej - strona P"
         ]
         target_A = "temperatura wylotowa spalin - strona A"
 
@@ -212,7 +212,7 @@ def main():
             "ciśnienie wody wtryskowej do pary świeżej",
             "temperatura wlotowa powietrza - strona A",
             # "temperatura za wtryskiem pary wtórnej - strona L ", 
-            # "temperatura za wtryskiem pary wtórnej - strona P"
+            "temperatura za wtryskiem pary wtórnej - strona P"
         ]
         target_B = "temperatura wylotowa spalin - strona B"
         
